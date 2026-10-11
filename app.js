@@ -106,6 +106,37 @@ function saveState() {
 
 // =================== CALCULATIONS ===================
 
+// Zerodha Kite Swing / Delivery Charges Calculator
+function calculateZerodhaCharges(buyValue, sellValue) {
+  if (!buyValue || buyValue <= 0) return 0;
+  const sell = (sellValue && sellValue > 0) ? sellValue : buyValue;
+  const turnover = buyValue + sell;
+
+  // 1. Brokerage: ₹0 for Equity Delivery (Swing)
+  const brokerage = 0;
+
+  // 2. STT: 0.1% on Buy + 0.1% on Sell
+  const stt = turnover * 0.001;
+
+  // 3. Exchange Transaction Charges (NSE): 0.00297% of turnover
+  const exchTxn = turnover * 0.0000297;
+
+  // 4. SEBI Turnover Charges: ₹10 / crore (0.0001% of turnover)
+  const sebi = turnover * 0.000001;
+
+  // 5. Stamp Duty: 0.015% on Buy turnover
+  const stampDuty = buyValue * 0.00015;
+
+  // 6. DP Charges: ₹13 + 18% GST = ₹15.34 per scrip on sell
+  const dpCharges = 15.34;
+
+  // 7. GST: 18% on (Brokerage + Exchange Txn Charges + SEBI Fees)
+  const gst = 0.18 * (brokerage + exchTxn + sebi);
+
+  const totalCharges = stt + exchTxn + sebi + stampDuty + dpCharges + gst;
+  return Math.round(totalCharges * 100) / 100;
+}
+
 function calculateTradeMetrics(trade) {
   const invested = trade.qty * trade.entryPrice;
   const isOpen = trade.status === "OPEN";
@@ -128,7 +159,8 @@ function calculateTradeMetrics(trade) {
   const pnlPercent = invested > 0 ? (grossPnL / invested) * 100 : 0;
   
   const tax = (!isOpen && grossPnL > 0) ? grossPnL * appState.settings.taxRate : 0;
-  const netPnL = grossPnL - tax;
+  const charges = isOpen ? 0 : calculateZerodhaCharges(invested, exitValue);
+  const netPnL = grossPnL - tax - charges;
 
   const p1Ratio = (trade.p1SharePct || 100) / 100;
   const p2Ratio = (trade.p2SharePct || 0) / 100;
@@ -145,6 +177,7 @@ function calculateTradeMetrics(trade) {
     grossPnL,
     pnlPercent,
     tax,
+    charges,
     netPnL,
     p1Share,
     p2Share
@@ -169,6 +202,7 @@ function calculateSummary() {
   let totalInvested = 0;
   let totalGrossPnL = 0;
   let totalTax = 0;
+  let totalCharges = 0;
   let totalNetPnL = 0;
   let p1TotalProfitShare = 0;
   let p1TotalLossShare = 0;
@@ -180,6 +214,7 @@ function calculateSummary() {
     totalInvested += m.invested;
     totalGrossPnL += m.grossPnL;
     totalTax += m.tax;
+    totalCharges += m.charges;
     totalNetPnL += m.netPnL;
 
     if (m.grossPnL > 0) {
@@ -224,6 +259,7 @@ function calculateSummary() {
     totalInvested,
     totalGrossPnL,
     totalTax,
+    totalCharges,
     totalNetPnL,
     profitFactor,
     avgWin,
@@ -366,6 +402,7 @@ function renderTable(s) {
   let totalInvested = 0;
   let totalGross = 0;
   let totalTax = 0;
+  let totalCharges = 0;
   let totalNet = 0;
   let totalP1Share = 0;
   let totalP2Share = 0;
@@ -373,7 +410,7 @@ function renderTable(s) {
   if (filtered.length === 0) {
     tbody.innerHTML = `
       <tr>
-        <td colspan="13" class="px-4 py-8 text-center text-slate-500">
+        <td colspan="14" class="px-4 py-8 text-center text-slate-500">
           No trades found. Click "+ Add Trade" to log a new position.
         </td>
       </tr>
@@ -385,6 +422,7 @@ function renderTable(s) {
       totalInvested += m.invested;
       totalGross += m.grossPnL;
       totalTax += m.tax;
+      totalCharges += m.charges;
       totalNet += m.netPnL;
       totalP1Share += m.p1Share;
       totalP2Share += m.p2Share;
@@ -420,26 +458,27 @@ function renderTable(s) {
       }
 
       const tr = document.createElement("tr");
-      tr.className = "hover:bg-slate-800/40 transition group";
+      tr.className = "hover:bg-slate-50 dark:hover:bg-slate-800/40 transition group";
       tr.innerHTML = `
         <td class="px-4 py-3">
-          <div class="font-bold text-white tracking-wide flex items-center gap-1.5">
+          <div class="font-bold text-slate-900 dark:text-white tracking-wide flex items-center gap-1.5">
             ${t.stock}
-            ${t.status === "OPEN" ? '<span class="text-[9px] bg-blue-500/20 text-blue-300 px-1 rounded">Holding</span>' : ''}
+            ${t.status === "OPEN" ? '<span class="text-[9px] bg-blue-500/10 dark:bg-blue-500/20 text-blue-600 dark:text-blue-300 px-1 rounded">Holding</span>' : ''}
           </div>
-          <div class="text-[10px] text-slate-400 mt-0.5">
+          <div class="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">
             ${t.entryDate || "-"} &rarr; ${t.exitDate || (t.status === "OPEN" ? "Holding" : "-")}
           </div>
         </td>
-        <td class="px-3 py-3 text-right mono font-medium text-slate-300">${t.qty}</td>
-        <td class="px-3 py-3 text-right mono text-slate-300">${formatINR(t.entryPrice)}</td>
+        <td class="px-3 py-3 text-right mono font-medium text-slate-700 dark:text-slate-300">${t.qty}</td>
+        <td class="px-3 py-3 text-right mono text-slate-700 dark:text-slate-300">${formatINR(t.entryPrice)}</td>
         <td class="px-3 py-3 text-right mono">${exitPriceDisplay}</td>
-        <td class="px-3 py-3 text-right mono font-medium text-slate-200">${formatINR(m.invested)}</td>
+        <td class="px-3 py-3 text-right mono font-medium text-slate-800 dark:text-slate-200">${formatINR(m.invested)}</td>
         <td class="px-3 py-3 text-right mono font-semibold ${isProfit ? 'text-emerald-400' : 'text-rose-400'}">
           ${formatINR(m.grossPnL)}
           <span class="text-[10px] block opacity-75">${m.pnlPercent >= 0 ? '+' : ''}${m.pnlPercent.toFixed(2)}%</span>
         </td>
-        <td class="px-3 py-3 text-right mono text-amber-400">${t.status === "OPEN" ? '-' : formatINR(m.tax)}</td>
+        <td class="px-3 py-3 text-right mono text-amber-500 dark:text-amber-400">${t.status === "OPEN" ? '-' : formatINR(m.tax)}</td>
+        <td class="px-3 py-3 text-right mono text-amber-500 dark:text-amber-400">${t.status === "OPEN" ? '-' : formatINR(m.charges)}</td>
         <td class="px-3 py-3 text-right mono font-bold ${m.netPnL >= 0 ? 'text-emerald-400' : 'text-rose-400'}">
           ${formatINR(m.netPnL)}
           ${t.status === "OPEN" ? '<span class="text-[9px] font-normal block text-slate-400">(Unrealized)</span>' : ''}
@@ -463,10 +502,10 @@ function renderTable(s) {
                 Close
               </button>
             ` : ''}
-            <button onclick="editTrade('${t.id}')" class="p-1.5 rounded-lg hover:bg-slate-700 text-slate-400 hover:text-emerald-400 transition" title="Edit">
+            <button onclick="editTrade('${t.id}')" class="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition" title="Edit">
               <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
             </button>
-            <button onclick="deleteTrade('${t.id}')" class="p-1.5 rounded-lg hover:bg-slate-700 text-slate-400 hover:text-rose-400 transition" title="Delete">
+            <button onclick="deleteTrade('${t.id}')" class="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 transition" title="Delete">
               <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
             </button>
           </div>
@@ -486,6 +525,9 @@ function renderTable(s) {
 
   document.getElementById("tfootTax").textContent = formatINR(totalTax);
 
+  const cElem = document.getElementById("tfootCharges");
+  if (cElem) cElem.textContent = formatINR(totalCharges);
+
   const nElem = document.getElementById("tfootNetPnL");
   nElem.textContent = formatINR(totalNet);
   nElem.className = `px-3 py-3 text-right mono font-bold ${totalNet >= 0 ? 'text-emerald-400' : 'text-rose-400'}`;
@@ -502,6 +544,13 @@ function renderCharts() {
   if (selectedMonth !== "ALL") {
     closedTrades = closedTrades.filter(t => getTradeYearMonth(t) === selectedMonth);
   }
+
+  const isDark = document.documentElement.classList.contains("dark");
+  const tickColor = isDark ? '#94a3b8' : '#64748b';
+  const gridColor = isDark ? 'rgba(51, 65, 85, 0.3)' : 'rgba(226, 232, 240, 0.8)';
+  const tooltipBg = isDark ? '#0f172a' : '#ffffff';
+  const tooltipBorder = isDark ? '#334155' : '#e2e8f0';
+  const tooltipTitle = isDark ? '#94a3b8' : '#475569';
 
   // 1. Cumulative Growth Chart
   const growthCtx = document.getElementById("growthChart").getContext("2d");
@@ -541,10 +590,10 @@ function renderCharts() {
       plugins: {
         legend: { display: false },
         tooltip: {
-          backgroundColor: '#0f172a',
-          titleColor: '#94a3b8',
+          backgroundColor: tooltipBg,
+          titleColor: tooltipTitle,
           bodyColor: '#10b981',
-          borderColor: '#334155',
+          borderColor: tooltipBorder,
           borderWidth: 1,
           callbacks: {
             label: (ctx) => ` P&L: ₹${ctx.parsed.y.toLocaleString('en-IN')}`
@@ -553,13 +602,13 @@ function renderCharts() {
       },
       scales: {
         x: {
-          grid: { color: 'rgba(51, 65, 85, 0.3)' },
-          ticks: { color: '#94a3b8', font: { size: 10 } }
+          grid: { color: gridColor },
+          ticks: { color: tickColor, font: { size: 10 } }
         },
         y: {
-          grid: { color: 'rgba(51, 65, 85, 0.3)' },
+          grid: { color: gridColor },
           ticks: {
-            color: '#94a3b8',
+            color: tickColor,
             font: { size: 10 },
             callback: (v) => '₹' + v.toLocaleString('en-IN')
           }
@@ -600,8 +649,10 @@ function renderCharts() {
       plugins: {
         legend: { display: false },
         tooltip: {
-          backgroundColor: '#0f172a',
-          borderColor: '#334155',
+          backgroundColor: tooltipBg,
+          titleColor: tooltipTitle,
+          bodyColor: isDark ? '#ffffff' : '#0f172a',
+          borderColor: tooltipBorder,
           borderWidth: 1,
           callbacks: {
             label: (ctx) => ` P&L: ₹${ctx.parsed.y.toLocaleString('en-IN')}`
@@ -611,12 +662,12 @@ function renderCharts() {
       scales: {
         x: {
           grid: { display: false },
-          ticks: { color: '#94a3b8', font: { size: 10 } }
+          ticks: { color: tickColor, font: { size: 10 } }
         },
         y: {
-          grid: { color: 'rgba(51, 65, 85, 0.3)' },
+          grid: { color: gridColor },
           ticks: {
-            color: '#94a3b8',
+            color: tickColor,
             font: { size: 10 },
             callback: (v) => '₹' + v.toLocaleString('en-IN')
           }
@@ -874,7 +925,7 @@ function exportJSON() {
 function exportCSV() {
   const headers = [
     "Stock", "Qty", "Entry Price", "Exit Price", "Invested (INR)",
-    "Gross P&L (INR)", "P&L %", "Tax @20% (INR)", "Net P&L (INR)",
+    "Gross P&L (INR)", "P&L %", "Tax @20% (INR)", "Charges (INR)", "Net P&L (INR)",
     "P1 Share %", "P2 Share %", "P1 Share (INR)", "P2 Share (INR)",
     "Entry Date", "Exit Date", "Status"
   ];
@@ -890,6 +941,7 @@ function exportCSV() {
       m.grossPnL.toFixed(2),
       m.pnlPercent.toFixed(2) + "%",
       m.tax.toFixed(2),
+      m.charges.toFixed(2),
       m.netPnL.toFixed(2),
       t.p1SharePct + "%",
       t.p2SharePct + "%",
@@ -998,8 +1050,42 @@ document.getElementById("btnResetData").addEventListener("click", () => {
   }
 });
 
+// =================== THEME MANAGEMENT (LIGHT / DARK) ===================
+
+function initTheme() {
+  const savedTheme = localStorage.getItem("swing_trade_theme") || "dark";
+  applyTheme(savedTheme);
+
+  const toggleBtn = document.getElementById("themeToggleBtn");
+  if (toggleBtn) {
+    toggleBtn.addEventListener("click", () => {
+      const isCurrentlyDark = document.documentElement.classList.contains("dark");
+      const newTheme = isCurrentlyDark ? "light" : "dark";
+      applyTheme(newTheme);
+      renderCharts(); // Re-render charts with appropriate axis/grid colors
+    });
+  }
+}
+
+function applyTheme(theme) {
+  const sunIcon = document.getElementById("themeIconSun");
+  const moonIcon = document.getElementById("themeIconMoon");
+
+  if (theme === "dark") {
+    document.documentElement.classList.add("dark");
+    if (sunIcon) sunIcon.classList.remove("hidden");
+    if (moonIcon) moonIcon.classList.add("hidden");
+  } else {
+    document.documentElement.classList.remove("dark");
+    if (sunIcon) sunIcon.classList.add("hidden");
+    if (moonIcon) moonIcon.classList.remove("hidden");
+  }
+  localStorage.setItem("swing_trade_theme", theme);
+}
+
 // Initialize on page load
 window.addEventListener("DOMContentLoaded", () => {
+  initTheme();
   renderAll();
   const hasOpen = appState.trades.some(t => t.status === "OPEN");
   if (hasOpen) refreshAllOpenPrices();

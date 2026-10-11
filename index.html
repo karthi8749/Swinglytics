@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dark">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -24,12 +24,6 @@
               500: '#22c55e',
               600: '#16a34a',
               700: '#15803d'
-            },
-            dark: {
-              900: '#0b0f17',
-              800: '#111827',
-              700: '#1f2937',
-              600: '#374151'
             }
           }
         }
@@ -40,6 +34,7 @@
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
     body {
       font-family: 'Plus Jakarta Sans', sans-serif;
+      transition: background-color 0.2s ease, color 0.2s ease;
     }
     .mono {
       font-family: 'JetBrains Mono', monospace;
@@ -50,45 +45,57 @@
       height: 6px;
     }
     ::-webkit-scrollbar-track {
-      background: #111827;
+      background: transparent;
     }
     ::-webkit-scrollbar-thumb {
-      background: #374151;
+      background: #94a3b8;
       border-radius: 4px;
     }
-    ::-webkit-scrollbar-thumb:hover {
-      background: #4b5563;
+    .dark ::-webkit-scrollbar-thumb {
+      background: #374151;
     }
   </style>
 </head>
-<body class="bg-[#0b0f17] text-slate-100 min-h-screen selection:bg-emerald-500 selection:text-black">
+<body class="bg-slate-50 dark:bg-[#0b0f17] text-slate-800 dark:text-slate-100 min-h-screen selection:bg-emerald-500 selection:text-black">
 
   <!-- Top Navbar -->
-  <header class="border-b border-slate-800 bg-slate-900/80 backdrop-blur sticky top-0 z-30">
+  <header class="border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur sticky top-0 z-30 transition-colors">
     <div class="w-full px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
       <div class="flex items-center gap-3">
         <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-400 flex items-center justify-center text-black font-bold shadow-lg shadow-emerald-500/20">
           <i data-lucide="trending-up" class="w-5 h-5"></i>
         </div>
         <div>
-          <h1 class="text-base sm:text-lg font-extrabold tracking-tight text-white">
+          <h1 class="text-base sm:text-lg font-extrabold tracking-tight text-slate-900 dark:text-white">
             Swinglytics
           </h1>
         </div>
       </div>
 
-      <!-- Action Buttons & Month Filter -->
+      <!-- Action Buttons, Month Filter & Theme Toggle -->
       <div class="flex items-center gap-2 sm:gap-3">
         <!-- Monthly Filter Dropdown -->
         <div class="relative flex items-center">
-          <i data-lucide="calendar" class="w-3.5 h-3.5 absolute left-2.5 text-emerald-400 pointer-events-none"></i>
-          <select id="monthFilterSelect" class="bg-slate-800 hover:bg-slate-700/80 border border-slate-700 rounded-lg pl-8 pr-3 py-2 text-xs sm:text-sm font-medium text-slate-200 focus:outline-none focus:border-emerald-500 cursor-pointer transition">
+          <i data-lucide="calendar" class="w-3.5 h-3.5 absolute left-2.5 text-emerald-500 dark:text-emerald-400 pointer-events-none"></i>
+          <select id="monthFilterSelect" class="bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700/80 border border-slate-200 dark:border-slate-700 rounded-lg pl-8 pr-3 py-2 text-xs sm:text-sm font-medium text-slate-700 dark:text-slate-200 focus:outline-none focus:border-emerald-500 cursor-pointer shadow-sm transition">
             <option value="ALL">All Months</option>
           </select>
         </div>
 
-        <button id="btnOpenCapitalModal" class="px-3 py-2 text-xs sm:text-sm font-medium rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 transition flex items-center gap-1.5">
-          <i data-lucide="wallet" class="w-4 h-4 text-emerald-400"></i>
+        <!-- Light / Dark Mode Toggle Button -->
+        <button id="themeToggleBtn" class="p-2 rounded-lg bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 shadow-sm transition flex items-center justify-center" title="Toggle Light / Dark Mode">
+          <!-- Sun Icon (shown in dark mode) -->
+          <svg id="themeIconSun" class="w-4 h-4 text-amber-400 hidden" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>
+          </svg>
+          <!-- Moon Icon (shown in light mode) -->
+          <svg id="themeIconMoon" class="w-4 h-4 text-slate-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>
+          </svg>
+        </button>
+
+        <button id="btnOpenCapitalModal" class="px-3 py-2 text-xs sm:text-sm font-medium rounded-lg bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white border border-slate-200 dark:border-slate-700 shadow-sm transition flex items-center gap-1.5">
+          <i data-lucide="wallet" class="w-4 h-4 text-emerald-500 dark:text-emerald-400"></i>
           <span class="hidden sm:inline">Manage</span> Capital
         </button>
 
@@ -99,22 +106,22 @@
 
         <!-- More Dropdown (Backup / Restore / Reset) -->
         <div class="relative">
-          <button id="btnDataMenu" class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white border border-slate-700 transition">
+          <button id="btnDataMenu" class="p-2 rounded-lg bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white border border-slate-200 dark:border-slate-700 shadow-sm transition">
             <i data-lucide="more-vertical" class="w-4 h-4"></i>
           </button>
-          <div id="dataMenuDropdown" class="hidden absolute right-0 mt-2 w-48 rounded-xl bg-slate-800 border border-slate-700 shadow-xl py-1 z-40 text-xs">
-            <button id="btnExportJSON" class="w-full text-left px-4 py-2 hover:bg-slate-700 text-slate-200 flex items-center gap-2">
-              <i data-lucide="download" class="w-3.5 h-3.5 text-emerald-400"></i> Export Backup (.json)
+          <div id="dataMenuDropdown" class="hidden absolute right-0 mt-2 w-48 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-xl py-1 z-40 text-xs">
+            <button id="btnExportJSON" class="w-full text-left px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 flex items-center gap-2">
+              <i data-lucide="download" class="w-3.5 h-3.5 text-emerald-500 dark:text-emerald-400"></i> Export Backup (.json)
             </button>
-            <button id="btnExportCSV" class="w-full text-left px-4 py-2 hover:bg-slate-700 text-slate-200 flex items-center gap-2">
-              <i data-lucide="file-spreadsheet" class="w-3.5 h-3.5 text-teal-400"></i> Export CSV (.csv)
+            <button id="btnExportCSV" class="w-full text-left px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 flex items-center gap-2">
+              <i data-lucide="file-spreadsheet" class="w-3.5 h-3.5 text-teal-500 dark:text-teal-400"></i> Export CSV (.csv)
             </button>
-            <label class="w-full text-left px-4 py-2 hover:bg-slate-700 text-slate-200 flex items-center gap-2 cursor-pointer">
-              <i data-lucide="upload" class="w-3.5 h-3.5 text-blue-400"></i> Import Backup
+            <label class="w-full text-left px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 flex items-center gap-2 cursor-pointer">
+              <i data-lucide="upload" class="w-3.5 h-3.5 text-blue-500 dark:text-blue-400"></i> Import Backup
               <input type="file" id="importFileInput" accept=".json" class="hidden" />
             </label>
-            <div class="border-t border-slate-700 my-1"></div>
-            <button id="btnResetData" class="w-full text-left px-4 py-2 hover:bg-red-500/10 text-red-400 flex items-center gap-2">
+            <div class="border-t border-slate-200 dark:border-slate-700 my-1"></div>
+            <button id="btnResetData" class="w-full text-left px-4 py-2 hover:bg-red-50 dark:hover:bg-red-500/10 text-red-600 dark:text-red-400 flex items-center gap-2">
               <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Reset to Sample Data
             </button>
           </div>
@@ -129,70 +136,70 @@
     <!-- Top KPI Cards (5 Cards Line up) -->
     <section class="grid grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4">
       <!-- 1. Active Total Capital -->
-      <div class="bg-slate-800/60 border border-slate-700/80 rounded-2xl p-4 sm:p-5 relative overflow-hidden backdrop-blur">
-        <div class="flex items-center justify-between text-slate-400 text-xs font-medium mb-1">
+      <div class="bg-white dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/80 rounded-2xl p-4 sm:p-5 relative overflow-hidden shadow-sm dark:shadow-none backdrop-blur transition-colors">
+        <div class="flex items-center justify-between text-slate-500 dark:text-slate-400 text-xs font-medium mb-1">
           <span>Active Total Capital</span>
-          <i data-lucide="vault" class="w-4 h-4 text-emerald-400"></i>
+          <i data-lucide="vault" class="w-4 h-4 text-emerald-500 dark:text-emerald-400"></i>
         </div>
-        <div id="kpiTotalCapital" class="text-lg sm:text-xl font-bold mono text-white">₹0.00</div>
-        <div class="text-[11px] text-slate-400 mt-1 flex items-center gap-1">
-          <span id="kpiInvestedCapital" class="text-slate-300 font-medium">₹0</span> deployed
+        <div id="kpiTotalCapital" class="text-lg sm:text-xl font-bold mono text-slate-900 dark:text-white">₹0.00</div>
+        <div class="text-[11px] text-slate-500 dark:text-slate-400 mt-1 flex items-center gap-1">
+          <span id="kpiInvestedCapital" class="text-slate-700 dark:text-slate-300 font-medium">₹0</span> deployed
         </div>
         <div class="absolute -right-4 -bottom-4 w-16 h-16 bg-emerald-500/5 rounded-full blur-xl"></div>
       </div>
 
       <!-- 2. Gross P&L Card -->
-      <div class="bg-slate-800/60 border border-slate-700/80 rounded-2xl p-4 sm:p-5 relative overflow-hidden backdrop-blur">
-        <div class="flex items-center justify-between text-slate-400 text-xs font-medium mb-1">
+      <div class="bg-white dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/80 rounded-2xl p-4 sm:p-5 relative overflow-hidden shadow-sm dark:shadow-none backdrop-blur transition-colors">
+        <div class="flex items-center justify-between text-slate-500 dark:text-slate-400 text-xs font-medium mb-1">
           <span>Gross P&L</span>
-          <i data-lucide="trending-up" class="w-4 h-4 text-emerald-400"></i>
+          <i data-lucide="trending-up" class="w-4 h-4 text-emerald-500 dark:text-emerald-400"></i>
         </div>
-        <div id="kpiGrossPnLCard" class="text-lg sm:text-xl font-bold mono text-emerald-400">₹0.00</div>
-        <div class="text-[11px] text-slate-400 mt-1 flex items-center justify-between">
+        <div id="kpiGrossPnLCard" class="text-lg sm:text-xl font-bold mono text-emerald-600 dark:text-emerald-400">₹0.00</div>
+        <div class="text-[11px] text-slate-500 dark:text-slate-400 mt-1 flex items-center justify-between">
           <span>Before Tax & Charges</span>
         </div>
         <div class="absolute -right-4 -bottom-4 w-16 h-16 bg-emerald-500/5 rounded-full blur-xl"></div>
       </div>
 
       <!-- 3. Net Realized P&L -->
-      <div class="bg-slate-800/60 border border-slate-700/80 rounded-2xl p-4 sm:p-5 relative overflow-hidden backdrop-blur">
-        <div class="flex items-center justify-between text-slate-400 text-xs font-medium mb-1">
+      <div class="bg-white dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/80 rounded-2xl p-4 sm:p-5 relative overflow-hidden shadow-sm dark:shadow-none backdrop-blur transition-colors">
+        <div class="flex items-center justify-between text-slate-500 dark:text-slate-400 text-xs font-medium mb-1">
           <span>Net Realized P&L</span>
-          <i data-lucide="bar-chart-2" class="w-4 h-4 text-teal-400"></i>
+          <i data-lucide="bar-chart-2" class="w-4 h-4 text-teal-500 dark:text-teal-400"></i>
         </div>
-        <div id="kpiNetPnL" class="text-lg sm:text-xl font-bold mono text-emerald-400">₹0.00</div>
-        <div class="text-[11px] text-slate-400 mt-1 flex items-center justify-between">
-          <span>Tax: <span id="kpiTaxPaid" class="text-amber-400 font-medium">₹0</span></span>
+        <div id="kpiNetPnL" class="text-lg sm:text-xl font-bold mono text-emerald-600 dark:text-emerald-400">₹0.00</div>
+        <div class="text-[11px] text-slate-500 dark:text-slate-400 mt-1 flex items-center justify-between">
+          <span>Tax: <span id="kpiTaxPaid" class="text-amber-600 dark:text-amber-400 font-medium">₹0</span></span>
         </div>
         <div class="absolute -right-4 -bottom-4 w-16 h-16 bg-teal-500/5 rounded-full blur-xl"></div>
       </div>
 
       <!-- 4. Win Rate & Trades -->
-      <div class="bg-slate-800/60 border border-slate-700/80 rounded-2xl p-4 sm:p-5 relative overflow-hidden backdrop-blur">
-        <div class="flex items-center justify-between text-slate-400 text-xs font-medium mb-1">
+      <div class="bg-white dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/80 rounded-2xl p-4 sm:p-5 relative overflow-hidden shadow-sm dark:shadow-none backdrop-blur transition-colors">
+        <div class="flex items-center justify-between text-slate-500 dark:text-slate-400 text-xs font-medium mb-1">
           <span>Win Rate</span>
-          <i data-lucide="target" class="w-4 h-4 text-purple-400"></i>
+          <i data-lucide="target" class="w-4 h-4 text-purple-500 dark:text-purple-400"></i>
         </div>
         <div class="flex items-baseline gap-2">
-          <div id="kpiWinRate" class="text-lg sm:text-xl font-bold mono text-white">0%</div>
-          <span id="kpiTradeCounts" class="text-xs text-slate-400 font-mono">(0W / 0L)</span>
+          <div id="kpiWinRate" class="text-lg sm:text-xl font-bold mono text-slate-900 dark:text-white">0%</div>
+          <span id="kpiTradeCounts" class="text-xs text-slate-500 dark:text-slate-400 font-mono">(0W / 0L)</span>
         </div>
-        <div class="text-[11px] text-slate-400 mt-1">
-          Closed Trades: <span id="kpiTotalTrades" class="font-semibold text-slate-200">0</span>
+        <div class="text-[11px] text-slate-500 dark:text-slate-400 mt-1">
+          Closed Trades: <span id="kpiTotalTrades" class="font-semibold text-slate-800 dark:text-slate-200">0</span>
         </div>
         <div class="absolute -right-4 -bottom-4 w-16 h-16 bg-purple-500/5 rounded-full blur-xl"></div>
       </div>
 
       <!-- 5. Profit Factor / ROI -->
-      <div class="bg-slate-800/60 border border-slate-700/80 rounded-2xl p-4 sm:p-5 relative overflow-hidden backdrop-blur">
-        <div class="flex items-center justify-between text-slate-400 text-xs font-medium mb-1">
+      <div class="bg-white dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/80 rounded-2xl p-4 sm:p-5 relative overflow-hidden shadow-sm dark:shadow-none backdrop-blur transition-colors">
+        <div class="flex items-center justify-between text-slate-500 dark:text-slate-400 text-xs font-medium mb-1">
           <span>Profit Factor & Avg</span>
-          <i data-lucide="pie-chart" class="w-4 h-4 text-blue-400"></i>
+          <i data-lucide="pie-chart" class="w-4 h-4 text-blue-500 dark:text-blue-400"></i>
         </div>
-        <div id="kpiProfitFactor" class="text-lg sm:text-xl font-bold mono text-white">0.00</div>
-        <div class="text-[11px] text-slate-400 mt-1 flex justify-between">
-          <span>W: <span id="kpiAvgWin" class="text-emerald-400 font-mono">₹0</span></span>
-          <span>L: <span id="kpiAvgLoss" class="text-rose-400 font-mono">₹0</span></span>
+        <div id="kpiProfitFactor" class="text-lg sm:text-xl font-bold mono text-slate-900 dark:text-white">0.00</div>
+        <div class="text-[11px] text-slate-500 dark:text-slate-400 mt-1 flex justify-between">
+          <span>W: <span id="kpiAvgWin" class="text-emerald-600 dark:text-emerald-400 font-mono">₹0</span></span>
+          <span>L: <span id="kpiAvgLoss" class="text-rose-600 dark:text-rose-400 font-mono">₹0</span></span>
         </div>
         <div class="absolute -right-4 -bottom-4 w-16 h-16 bg-blue-500/5 rounded-full blur-xl"></div>
       </div>
@@ -201,63 +208,63 @@
     <!-- Partner Share Cards (Person 1 & Person 2) -->
     <section class="grid grid-cols-1 md:grid-cols-2 gap-4">
       <!-- Partner 1 Card -->
-      <div class="bg-gradient-to-br from-slate-800/80 to-slate-800/40 border border-slate-700/80 rounded-2xl p-5 relative overflow-hidden">
+      <div class="bg-white dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/80 rounded-2xl p-5 relative overflow-hidden shadow-sm dark:shadow-none backdrop-blur transition-colors">
         <div class="flex items-center justify-between mb-3">
           <div class="flex items-center gap-2.5">
-            <div class="w-9 h-9 rounded-xl bg-blue-500/20 text-blue-400 border border-blue-500/30 flex items-center justify-center font-bold text-sm">
+            <div class="w-9 h-9 rounded-xl bg-blue-500/10 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400 border border-blue-500/20 dark:border-blue-500/30 flex items-center justify-center font-bold text-sm">
               P1
             </div>
             <div>
-              <h2 id="partner1NameDisplay" class="font-bold text-slate-100 text-sm sm:text-base">Person 1</h2>
-              <span id="partner1SharePercent" class="text-xs text-blue-400 font-semibold">100% Capital Share</span>
+              <h2 id="partner1NameDisplay" class="font-bold text-slate-900 dark:text-slate-100 text-sm sm:text-base">Person 1</h2>
+              <span id="partner1SharePercent" class="text-xs text-blue-600 dark:text-blue-400 font-semibold">100% Capital Share</span>
             </div>
           </div>
-          <span class="text-xs px-2.5 py-1 rounded-full bg-slate-700/60 text-slate-300 font-mono border border-slate-600">Active</span>
+          <span class="text-xs px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-700/60 text-slate-600 dark:text-slate-300 font-mono border border-slate-200 dark:border-slate-600">Active</span>
         </div>
 
-        <div class="grid grid-cols-3 gap-2 pt-3 border-t border-slate-700/60">
+        <div class="grid grid-cols-3 gap-2 pt-3 border-t border-slate-100 dark:border-slate-700/60">
           <div>
-            <div class="text-[11px] text-slate-400">Current Capital</div>
-            <div id="p1CurrentCap" class="text-sm sm:text-base font-bold mono text-white mt-0.5">₹0.00</div>
+            <div class="text-[11px] text-slate-500 dark:text-slate-400">Current Capital</div>
+            <div id="p1CurrentCap" class="text-sm sm:text-base font-bold mono text-slate-900 dark:text-white mt-0.5">₹0.00</div>
           </div>
           <div>
-            <div class="text-[11px] text-slate-400">Net Profit Share</div>
-            <div id="p1ProfitShare" class="text-sm sm:text-base font-bold mono text-emerald-400 mt-0.5">₹0.00</div>
+            <div class="text-[11px] text-slate-500 dark:text-slate-400">Net Profit Share</div>
+            <div id="p1ProfitShare" class="text-sm sm:text-base font-bold mono text-emerald-600 dark:text-emerald-400 mt-0.5">₹0.00</div>
           </div>
           <div>
-            <div class="text-[11px] text-slate-400">Loss Absorbed</div>
-            <div id="p1LossShare" class="text-sm sm:text-base font-bold mono text-rose-400 mt-0.5">₹0.00</div>
+            <div class="text-[11px] text-slate-500 dark:text-slate-400">Loss Absorbed</div>
+            <div id="p1LossShare" class="text-sm sm:text-base font-bold mono text-rose-600 dark:text-rose-400 mt-0.5">₹0.00</div>
           </div>
         </div>
       </div>
 
       <!-- Partner 2 Card -->
-      <div class="bg-gradient-to-br from-slate-800/80 to-slate-800/40 border border-slate-700/80 rounded-2xl p-5 relative overflow-hidden">
+      <div class="bg-white dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/80 rounded-2xl p-5 relative overflow-hidden shadow-sm dark:shadow-none backdrop-blur transition-colors">
         <div class="flex items-center justify-between mb-3">
           <div class="flex items-center gap-2.5">
-            <div class="w-9 h-9 rounded-xl bg-purple-500/20 text-purple-400 border border-purple-500/30 flex items-center justify-center font-bold text-sm">
+            <div class="w-9 h-9 rounded-xl bg-purple-500/10 dark:bg-purple-500/20 text-purple-600 dark:text-purple-400 border border-purple-500/20 dark:border-purple-500/30 flex items-center justify-center font-bold text-sm">
               P2
             </div>
             <div>
-              <h2 id="partner2NameDisplay" class="font-bold text-slate-100 text-sm sm:text-base">Person 2</h2>
-              <span id="partner2SharePercent" class="text-xs text-purple-400 font-semibold">0% Capital Share</span>
+              <h2 id="partner2NameDisplay" class="font-bold text-slate-900 dark:text-slate-100 text-sm sm:text-base">Person 2</h2>
+              <span id="partner2SharePercent" class="text-xs text-purple-600 dark:text-purple-400 font-semibold">0% Capital Share</span>
             </div>
           </div>
-          <span class="text-xs px-2.5 py-1 rounded-full bg-slate-700/60 text-slate-300 font-mono border border-slate-600">Active</span>
+          <span class="text-xs px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-700/60 text-slate-600 dark:text-slate-300 font-mono border border-slate-200 dark:border-slate-600">Active</span>
         </div>
 
-        <div class="grid grid-cols-3 gap-2 pt-3 border-t border-slate-700/60">
+        <div class="grid grid-cols-3 gap-2 pt-3 border-t border-slate-100 dark:border-slate-700/60">
           <div>
-            <div class="text-[11px] text-slate-400">Current Capital</div>
-            <div id="p2CurrentCap" class="text-sm sm:text-base font-bold mono text-white mt-0.5">₹0.00</div>
+            <div class="text-[11px] text-slate-500 dark:text-slate-400">Current Capital</div>
+            <div id="p2CurrentCap" class="text-sm sm:text-base font-bold mono text-slate-900 dark:text-white mt-0.5">₹0.00</div>
           </div>
           <div>
-            <div class="text-[11px] text-slate-400">Net Profit Share</div>
-            <div id="p2ProfitShare" class="text-sm sm:text-base font-bold mono text-emerald-400 mt-0.5">₹0.00</div>
+            <div class="text-[11px] text-slate-500 dark:text-slate-400">Net Profit Share</div>
+            <div id="p2ProfitShare" class="text-sm sm:text-base font-bold mono text-emerald-600 dark:text-emerald-400 mt-0.5">₹0.00</div>
           </div>
           <div>
-            <div class="text-[11px] text-slate-400">Loss Absorbed</div>
-            <div id="p2LossShare" class="text-sm sm:text-base font-bold mono text-rose-400 mt-0.5">₹0.00</div>
+            <div class="text-[11px] text-slate-500 dark:text-slate-400">Loss Absorbed</div>
+            <div id="p2LossShare" class="text-sm sm:text-base font-bold mono text-rose-600 dark:text-rose-400 mt-0.5">₹0.00</div>
           </div>
         </div>
       </div>
@@ -266,13 +273,13 @@
     <!-- Visual Charts Section -->
     <section class="grid grid-cols-1 lg:grid-cols-3 gap-4">
       <!-- Cumulative P&L Growth Chart -->
-      <div class="lg:col-span-2 bg-slate-800/60 border border-slate-700/80 rounded-2xl p-5">
+      <div class="lg:col-span-2 bg-white dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/80 rounded-2xl p-5 shadow-sm dark:shadow-none transition-colors">
         <div class="flex items-center justify-between mb-4">
           <div>
-            <h2 class="font-bold text-slate-200 text-sm sm:text-base">Cumulative P&L Growth</h2>
-            <p class="text-xs text-slate-400">Trade-by-trade performance trajectory</p>
+            <h2 class="font-bold text-slate-900 dark:text-slate-200 text-sm sm:text-base">Cumulative P&L Growth</h2>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Trade-by-trade performance trajectory</p>
           </div>
-          <span class="text-xs font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">Live</span>
+          <span class="text-xs font-mono text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">Live</span>
         </div>
         <div class="h-64">
           <canvas id="growthChart"></canvas>
@@ -280,11 +287,11 @@
       </div>
 
       <!-- Stock-wise P&L Chart -->
-      <div class="bg-slate-800/60 border border-slate-700/80 rounded-2xl p-5">
+      <div class="bg-white dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/80 rounded-2xl p-5 shadow-sm dark:shadow-none transition-colors">
         <div class="flex items-center justify-between mb-4">
           <div>
-            <h2 class="font-bold text-slate-200 text-sm sm:text-base">Stock-wise P&L</h2>
-            <p class="text-xs text-slate-400">P&L distribution per symbol</p>
+            <h2 class="font-bold text-slate-900 dark:text-slate-200 text-sm sm:text-base">Stock-wise P&L</h2>
+            <p class="text-xs text-slate-500 dark:text-slate-400">P&L distribution per symbol</p>
           </div>
         </div>
         <div class="h-64">
@@ -294,34 +301,34 @@
     </section>
 
     <!-- Trade Log Section -->
-    <section class="bg-slate-800/60 border border-slate-700/80 rounded-2xl overflow-hidden shadow-xl">
+    <section class="bg-white dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/80 rounded-2xl overflow-hidden shadow-sm dark:shadow-xl transition-colors">
       <!-- Table Header & Controls -->
-      <div class="p-4 sm:p-5 border-b border-slate-700/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div class="p-4 sm:p-5 border-b border-slate-200 dark:border-slate-700/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div class="flex items-center gap-2">
-          <h2 class="text-base font-bold text-white flex items-center gap-2">
+          <h2 class="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
             Trade Log
-            <span id="badgeTradeCount" class="text-xs px-2 py-0.5 rounded-full bg-slate-700 text-slate-300 font-mono">3</span>
+            <span id="badgeTradeCount" class="text-xs px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 font-mono">3</span>
           </h2>
           <!-- Filter Tabs -->
-          <div class="flex bg-slate-900/80 p-0.5 rounded-lg border border-slate-700 ml-2">
+          <div class="flex bg-slate-100 dark:bg-slate-900/80 p-0.5 rounded-lg border border-slate-200 dark:border-slate-700 ml-2">
             <button id="tabAll" class="px-2.5 py-1 text-xs font-medium rounded-md bg-emerald-500 text-slate-950 transition">All</button>
-            <button id="tabOpen" class="px-2.5 py-1 text-xs font-medium rounded-md text-slate-400 hover:text-white transition">🟢 Open (<span id="openCountBadge">0</span>)</button>
-            <button id="tabProfit" class="px-2.5 py-1 text-xs font-medium rounded-md text-slate-400 hover:text-white transition">Wins</button>
-            <button id="tabLoss" class="px-2.5 py-1 text-xs font-medium rounded-md text-slate-400 hover:text-white transition">Losses</button>
+            <button id="tabOpen" class="px-2.5 py-1 text-xs font-medium rounded-md text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition">🟢 Open (<span id="openCountBadge">0</span>)</button>
+            <button id="tabProfit" class="px-2.5 py-1 text-xs font-medium rounded-md text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition">Wins</button>
+            <button id="tabLoss" class="px-2.5 py-1 text-xs font-medium rounded-md text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition">Losses</button>
           </div>
         </div>
 
         <div class="flex items-center gap-2">
           <!-- Refresh Live Prices Button -->
-          <button id="btnRefreshCMP" class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-emerald-400 text-xs font-medium border border-slate-700 flex items-center gap-1.5 transition" title="Fetch latest NSE live prices">
-            <i data-lucide="refresh-cw" id="cmpRefreshIcon" class="w-3.5 h-3.5 text-emerald-400"></i>
+          <button id="btnRefreshCMP" class="px-2.5 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 hover:text-emerald-600 dark:hover:text-emerald-400 text-xs font-medium border border-slate-200 dark:border-slate-700 flex items-center gap-1.5 shadow-sm transition" title="Fetch latest NSE live prices">
+            <i data-lucide="refresh-cw" id="cmpRefreshIcon" class="w-3.5 h-3.5 text-emerald-500 dark:text-emerald-400"></i>
             <span class="hidden sm:inline">Live CMP</span>
           </button>
 
           <!-- Search Input -->
           <div class="relative w-full sm:w-48">
             <i data-lucide="search" class="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
-            <input type="text" id="searchTradeInput" placeholder="Search stock..." class="w-full bg-slate-900 border border-slate-700 rounded-lg pl-8 pr-3 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition" />
+            <input type="text" id="searchTradeInput" placeholder="Search stock..." class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg pl-8 pr-3 py-1.5 text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition" />
           </div>
           <!-- Quick Add Button -->
           <button id="btnQuickAddTrade" class="px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-semibold flex items-center gap-1 transition">
@@ -333,7 +340,7 @@
       <!-- Responsive Table Container -->
       <div class="overflow-x-auto">
         <table class="w-full text-left text-xs">
-          <thead class="bg-slate-900/90 text-slate-400 border-b border-slate-700/80 font-semibold uppercase tracking-wider">
+          <thead class="bg-slate-100 dark:bg-slate-900/90 text-slate-600 dark:text-slate-400 border-b border-slate-200 dark:border-slate-700/80 font-semibold uppercase tracking-wider">
             <tr>
               <th class="px-4 py-3">Stock / Dates</th>
               <th class="px-3 py-3 text-right">Qty</th>
@@ -342,6 +349,7 @@
               <th class="px-3 py-3 text-right">Invested (₹)</th>
               <th class="px-3 py-3 text-right">Gross P&L</th>
               <th class="px-3 py-3 text-right">Tax @20%</th>
+              <th class="px-3 py-3 text-right">Charges (₹)</th>
               <th class="px-3 py-3 text-right">Net P&L</th>
               <th class="px-3 py-3 text-center">Split (P1/P2)</th>
               <th id="thP1ShareHeader" class="px-3 py-3 text-right">Person 1 Share</th>
@@ -350,22 +358,23 @@
               <th class="px-4 py-3 text-right">Actions</th>
             </tr>
           </thead>
-          <tbody id="tradeTableBody" class="divide-y divide-slate-700/50">
+          <tbody id="tradeTableBody" class="divide-y divide-slate-100 dark:divide-slate-700/50">
             <!-- Rendered dynamically -->
           </tbody>
-          <tfoot class="bg-slate-900/90 font-bold border-t border-slate-700 text-slate-200">
+          <tfoot class="bg-slate-50 dark:bg-slate-900/90 font-bold border-t border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200">
             <tr>
               <td class="px-4 py-3">TOTAL</td>
               <td id="tfootTotalQty" class="px-3 py-3 text-right mono">-</td>
               <td class="px-3 py-3 text-right mono">-</td>
               <td class="px-3 py-3 text-right mono">-</td>
               <td id="tfootTotalInvested" class="px-3 py-3 text-right mono">-</td>
-              <td id="tfootGrossPnL" class="px-3 py-3 text-right mono text-emerald-400">-</td>
-              <td id="tfootTax" class="px-3 py-3 text-right mono text-amber-400">-</td>
-              <td id="tfootNetPnL" class="px-3 py-3 text-right mono text-emerald-400">-</td>
+              <td id="tfootGrossPnL" class="px-3 py-3 text-right mono text-emerald-600 dark:text-emerald-400">-</td>
+              <td id="tfootTax" class="px-3 py-3 text-right mono text-amber-600 dark:text-amber-400">-</td>
+              <td id="tfootCharges" class="px-3 py-3 text-right mono text-amber-600 dark:text-amber-400">-</td>
+              <td id="tfootNetPnL" class="px-3 py-3 text-right mono text-emerald-600 dark:text-emerald-400">-</td>
               <td class="px-3 py-3 text-center">-</td>
-              <td id="tfootP1Share" class="px-3 py-3 text-right mono text-blue-400">-</td>
-              <td id="tfootP2Share" class="px-3 py-3 text-right mono text-purple-400">-</td>
+              <td id="tfootP1Share" class="px-3 py-3 text-right mono text-blue-600 dark:text-blue-400">-</td>
+              <td id="tfootP2Share" class="px-3 py-3 text-right mono text-purple-600 dark:text-purple-400">-</td>
               <td colspan="2" class="px-4 py-3"></td>
             </tr>
           </tfoot>
@@ -378,13 +387,13 @@
   <!-- ==================== MODALS ==================== -->
 
   <!-- Add / Edit Trade Modal -->
-  <div id="tradeModal" class="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-    <div class="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-lg shadow-2xl overflow-hidden">
-      <div class="p-5 border-b border-slate-800 flex items-center justify-between">
-        <h3 id="tradeModalTitle" class="font-bold text-white text-base flex items-center gap-2">
-          <i data-lucide="plus-circle" class="w-5 h-5 text-emerald-400"></i> Add New Trade
+  <div id="tradeModal" class="fixed inset-0 bg-black/60 dark:bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl w-full max-w-lg shadow-2xl overflow-hidden transition-colors">
+      <div class="p-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+        <h3 id="tradeModalTitle" class="font-bold text-slate-900 dark:text-white text-base flex items-center gap-2">
+          <i data-lucide="plus-circle" class="w-5 h-5 text-emerald-500 dark:text-emerald-400"></i> Add New Trade
         </h3>
-        <button id="btnCloseTradeModal" class="text-slate-400 hover:text-white transition">
+        <button id="btnCloseTradeModal" class="text-slate-400 hover:text-slate-600 dark:hover:text-white transition">
           <i data-lucide="x" class="w-5 h-5"></i>
         </button>
       </div>
@@ -394,84 +403,84 @@
 
         <!-- Stock Symbol -->
         <div>
-          <label class="block text-xs font-medium text-slate-300 mb-1">Stock Name / Symbol *</label>
-          <input type="text" id="tradeStock" required placeholder="e.g. RELIANCE, CUPID, CUB" class="w-full uppercase bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500" />
+          <label class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">Stock Name / Symbol *</label>
+          <input type="text" id="tradeStock" required placeholder="e.g. RELIANCE, CUPID, CUB" class="w-full uppercase bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-emerald-500" />
         </div>
 
         <!-- Quantity & Entry Price -->
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <label class="block text-xs font-medium text-slate-300 mb-1">Quantity *</label>
-            <input type="number" id="tradeQty" required step="1" min="1" placeholder="e.g. 100" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 mono" />
+            <label class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">Quantity *</label>
+            <input type="number" id="tradeQty" required step="1" min="1" placeholder="e.g. 100" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-emerald-500 mono" />
           </div>
           <div>
-            <label class="block text-xs font-medium text-slate-300 mb-1">Entry Price (₹) *</label>
-            <input type="number" id="tradeEntryPrice" required step="0.01" min="0.01" placeholder="e.g. 250.50" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 mono" />
+            <label class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">Entry Price (₹) *</label>
+            <input type="number" id="tradeEntryPrice" required step="0.01" min="0.01" placeholder="e.g. 250.50" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-emerald-500 mono" />
           </div>
         </div>
 
         <!-- Status & Exit Price -->
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <label class="block text-xs font-medium text-slate-300 mb-1">Trade Status *</label>
-            <select id="tradeStatusSelect" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500">
+            <label class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">Trade Status *</label>
+            <select id="tradeStatusSelect" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500">
               <option value="OPEN">🟢 OPEN (Holding / Live CMP)</option>
               <option value="CLOSED">⚪ CLOSED (Completed / Sold)</option>
             </select>
           </div>
           <div>
-            <label class="block text-xs font-medium text-slate-300 mb-1">
-              Exit Price (₹) <span class="text-slate-500 text-[11px]">(Optional if Open)</span>
+            <label class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
+              Exit Price (₹) <span class="text-slate-400 dark:text-slate-500 text-[11px]">(Optional if Open)</span>
             </label>
-            <input type="number" id="tradeExitPrice" step="0.01" min="0" placeholder="Auto-fetched if Open" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 mono" />
+            <input type="number" id="tradeExitPrice" step="0.01" min="0" placeholder="Auto-fetched if Open" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-emerald-500 mono" />
           </div>
         </div>
 
         <!-- Entry Date & Exit Date -->
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <label class="block text-xs font-medium text-slate-300 mb-1">Entry Date</label>
-            <input type="date" id="tradeEntryDate" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500" />
+            <label class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">Entry Date</label>
+            <input type="date" id="tradeEntryDate" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500" />
           </div>
           <div>
-            <label class="block text-xs font-medium text-slate-300 mb-1">Exit Date</label>
-            <input type="date" id="tradeExitDate" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500" />
+            <label class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">Exit Date</label>
+            <input type="date" id="tradeExitDate" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500" />
           </div>
         </div>
 
         <!-- Partner Split at time of trade -->
-        <div class="bg-slate-800/80 p-3.5 rounded-xl border border-slate-700/80 space-y-2">
-          <div class="flex items-center justify-between text-xs font-medium text-slate-300">
+        <div class="bg-slate-50 dark:bg-slate-800/80 p-3.5 rounded-xl border border-slate-200 dark:border-slate-700/80 space-y-2">
+          <div class="flex items-center justify-between text-xs font-medium text-slate-700 dark:text-slate-300">
             <span>Capital Split at this trade</span>
             <span class="text-slate-400 text-[11px]">Auto locked to trade</span>
           </div>
           <div class="grid grid-cols-2 gap-3 items-center">
             <div>
-              <label class="text-[11px] text-slate-400 block mb-0.5"><span id="p1LabelModal">P1</span> Share %</label>
+              <label class="text-[11px] text-slate-500 dark:text-slate-400 block mb-0.5"><span id="p1LabelModal">P1</span> Share %</label>
               <div class="relative">
-                <input type="number" id="tradeP1Share" step="1" min="0" max="100" value="100" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white mono focus:outline-none focus:border-emerald-500" />
-                <span class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 text-xs">%</span>
+                <input type="number" id="tradeP1Share" step="1" min="0" max="100" value="100" class="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-1.5 text-xs text-slate-900 dark:text-white mono focus:outline-none focus:border-emerald-500" />
+                <span class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500 text-xs">%</span>
               </div>
             </div>
             <div>
-              <label class="text-[11px] text-slate-400 block mb-0.5"><span id="p2LabelModal">P2</span> Share %</label>
+              <label class="text-[11px] text-slate-500 dark:text-slate-400 block mb-0.5"><span id="p2LabelModal">P2</span> Share %</label>
               <div class="relative">
-                <input type="number" id="tradeP2Share" readonly value="0" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-1.5 text-xs text-slate-400 mono focus:outline-none cursor-not-allowed" />
-                <span class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 text-xs">%</span>
+                <input type="number" id="tradeP2Share" readonly value="0" class="w-full bg-slate-100 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-1.5 text-xs text-slate-400 mono focus:outline-none cursor-not-allowed" />
+                <span class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500 text-xs">%</span>
               </div>
             </div>
           </div>
         </div>
 
         <!-- Live Preview calculation in modal -->
-        <div class="p-3 bg-slate-950 rounded-xl border border-slate-800 flex items-center justify-between text-xs">
-          <span class="text-slate-400">Est. P&L:</span>
-          <span id="modalEstPnL" class="font-bold mono text-slate-300">₹0.00 (0.00%)</span>
+        <div class="p-3 bg-slate-50 dark:bg-slate-950 rounded-xl border border-slate-200 dark:border-slate-800 flex items-center justify-between text-xs">
+          <span class="text-slate-500 dark:text-slate-400">Est. P&L:</span>
+          <span id="modalEstPnL" class="font-bold mono text-slate-700 dark:text-slate-300">₹0.00 (0.00%)</span>
         </div>
 
         <!-- Modal Footer Actions -->
         <div class="pt-2 flex items-center justify-end gap-2">
-          <button type="button" id="btnCancelTradeModal" class="px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium transition">Cancel</button>
+          <button type="button" id="btnCancelTradeModal" class="px-4 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-medium transition">Cancel</button>
           <button type="submit" class="px-5 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold transition flex items-center gap-1.5">
             <i data-lucide="check" class="w-4 h-4"></i> Save Trade
           </button>
@@ -481,50 +490,50 @@
   </div>
 
   <!-- Manage Capital Modal -->
-  <div id="capitalModal" class="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-    <div class="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-lg shadow-2xl overflow-hidden">
-      <div class="p-5 border-b border-slate-800 flex items-center justify-between">
-        <h3 class="font-bold text-white text-base flex items-center gap-2">
-          <i data-lucide="wallet" class="w-5 h-5 text-emerald-400"></i> Partner Capital & Settings
+  <div id="capitalModal" class="fixed inset-0 bg-black/60 dark:bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl w-full max-w-lg shadow-2xl overflow-hidden transition-colors">
+      <div class="p-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+        <h3 class="font-bold text-slate-900 dark:text-white text-base flex items-center gap-2">
+          <i data-lucide="wallet" class="w-5 h-5 text-emerald-500 dark:text-emerald-400"></i> Partner Capital & Settings
         </h3>
-        <button id="btnCloseCapitalModal" class="text-slate-400 hover:text-white transition">
+        <button id="btnCloseCapitalModal" class="text-slate-400 hover:text-slate-600 dark:hover:text-white transition">
           <i data-lucide="x" class="w-5 h-5"></i>
         </button>
       </div>
 
       <form id="capitalForm" class="p-5 space-y-4">
         <!-- Partner 1 Settings -->
-        <div class="bg-slate-800/60 p-4 rounded-xl border border-slate-700 space-y-3">
-          <div class="text-xs font-bold text-blue-400 uppercase tracking-wide">Partner 1 Profile</div>
+        <div class="bg-slate-50 dark:bg-slate-800/60 p-4 rounded-xl border border-slate-200 dark:border-slate-700 space-y-3">
+          <div class="text-xs font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wide">Partner 1 Profile</div>
           <div class="grid grid-cols-2 gap-3">
             <div>
-              <label class="block text-[11px] text-slate-400 mb-1">Name</label>
-              <input type="text" id="capP1Name" value="Person 1" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-emerald-500" />
+              <label class="block text-[11px] text-slate-500 dark:text-slate-400 mb-1">Name</label>
+              <input type="text" id="capP1Name" value="Karthi" class="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-1.5 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500" />
             </div>
             <div>
-              <label class="block text-[11px] text-slate-400 mb-1">Initial Capital (₹)</label>
-              <input type="number" id="capP1Initial" step="100" min="0" value="100000" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white mono focus:outline-none focus:border-emerald-500" />
+              <label class="block text-[11px] text-slate-500 dark:text-slate-400 mb-1">Initial Capital (₹)</label>
+              <input type="number" id="capP1Initial" step="100" min="0" value="100000" class="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-1.5 text-xs text-slate-900 dark:text-white mono focus:outline-none focus:border-emerald-500" />
             </div>
           </div>
         </div>
 
         <!-- Partner 2 Settings -->
-        <div class="bg-slate-800/60 p-4 rounded-xl border border-slate-700 space-y-3">
-          <div class="text-xs font-bold text-purple-400 uppercase tracking-wide">Partner 2 Profile</div>
+        <div class="bg-slate-50 dark:bg-slate-800/60 p-4 rounded-xl border border-slate-200 dark:border-slate-700 space-y-3">
+          <div class="text-xs font-bold text-purple-600 dark:text-purple-400 uppercase tracking-wide">Partner 2 Profile</div>
           <div class="grid grid-cols-2 gap-3">
             <div>
-              <label class="block text-[11px] text-slate-400 mb-1">Name</label>
-              <input type="text" id="capP2Name" value="Person 2" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-emerald-500" />
+              <label class="block text-[11px] text-slate-500 dark:text-slate-400 mb-1">Name</label>
+              <input type="text" id="capP2Name" value="Person 2" class="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-1.5 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500" />
             </div>
             <div>
-              <label class="block text-[11px] text-slate-400 mb-1">Initial Capital (₹)</label>
-              <input type="number" id="capP2Initial" step="100" min="0" value="0" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white mono focus:outline-none focus:border-emerald-500" />
+              <label class="block text-[11px] text-slate-500 dark:text-slate-400 mb-1">Initial Capital (₹)</label>
+              <input type="number" id="capP2Initial" step="100" min="0" value="0" class="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-1.5 text-xs text-slate-900 dark:text-white mono focus:outline-none focus:border-emerald-500" />
             </div>
           </div>
         </div>
 
         <div class="pt-2 flex items-center justify-end gap-2">
-          <button type="button" id="btnCancelCapitalModal" class="px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium transition">Cancel</button>
+          <button type="button" id="btnCancelCapitalModal" class="px-4 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-medium transition">Cancel</button>
           <button type="submit" class="px-5 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold transition flex items-center gap-1.5">
             <i data-lucide="check" class="w-4 h-4"></i> Save Capital Setup
           </button>
