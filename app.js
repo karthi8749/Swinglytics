@@ -453,8 +453,10 @@ function renderTable(s) {
     if (selectedMonth !== "ALL" && getTradeYearMonth(t) !== selectedMonth) {
       return false;
     }
-    if (searchKeyword && !t.stock.toUpperCase().includes(searchKeyword)) {
-      return false;
+    if (searchKeyword) {
+      const matchStock = t.stock && t.stock.toUpperCase().includes(searchKeyword);
+      const matchStrategy = t.strategy && t.strategy.toUpperCase().includes(searchKeyword);
+      if (!matchStock && !matchStrategy) return false;
     }
     const m = calculateTradeMetrics(t);
     if (activeFilter === "OPEN") return t.status === "OPEN";
@@ -524,16 +526,29 @@ function renderTable(s) {
         exitPriceDisplay = `<div class="text-slate-300">${formatINR(t.exitPrice)}</div>`;
       }
 
+      // Calculate Holding Days
+      let holdingDaysBadge = "";
+      if (t.entryDate) {
+        const d1 = new Date(t.entryDate);
+        const d2 = (t.status === "OPEN" || !t.exitDate) ? new Date() : new Date(t.exitDate);
+        if (!isNaN(d1.getTime()) && !isNaN(d2.getTime())) {
+          const diffDays = Math.max(0, Math.round((d2.getTime() - d1.getTime()) / (1000 * 60 * 60 * 24)));
+          holdingDaysBadge = `<span class="px-1.5 py-0.2 rounded bg-slate-100 dark:bg-slate-700/60 text-slate-600 dark:text-slate-300 font-mono text-[9px] font-semibold" title="Holding Period: ${diffDays} day(s)">${diffDays}d</span>`;
+        }
+      }
+
       const tr = document.createElement("tr");
       tr.className = "hover:bg-slate-50 dark:hover:bg-slate-800/40 transition group";
       tr.innerHTML = `
         <td class="px-4 py-3">
-          <div class="font-bold text-slate-900 dark:text-white tracking-wide flex items-center gap-1.5">
-            ${t.stock}
+          <div class="font-bold text-slate-900 dark:text-white tracking-wide flex items-center gap-1.5 flex-wrap">
+            <span>${t.stock}</span>
             ${t.status === "OPEN" ? '<span class="text-[9px] bg-blue-500/10 dark:bg-blue-500/20 text-blue-600 dark:text-blue-300 px-1 rounded">Holding</span>' : ''}
+            ${t.strategy ? `<span class="text-[9px] px-1.5 py-0.2 rounded bg-purple-500/10 dark:bg-purple-500/20 text-purple-600 dark:text-purple-300 border border-purple-500/20 font-medium">${t.strategy}</span>` : ''}
           </div>
-          <div class="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">
-            ${t.entryDate || "-"} &rarr; ${t.exitDate || (t.status === "OPEN" ? "Holding" : "-")}
+          <div class="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 flex items-center gap-1.5 flex-wrap">
+            <span>${t.entryDate || "-"} &rarr; ${t.exitDate || (t.status === "OPEN" ? "Holding" : "-")}</span>
+            ${holdingDaysBadge}
           </div>
         </td>
         <td class="px-3 py-3 text-right mono font-medium text-slate-700 dark:text-slate-300">${t.qty}</td>
@@ -778,6 +793,10 @@ function openTradeModal(editId = null) {
       tradeStatusSelect.value = trade.status || "CLOSED";
       tradeP1Share.value = trade.p1SharePct !== undefined ? trade.p1SharePct : 100;
       tradeP2Share.value = 100 - Number(tradeP1Share.value);
+      const stratInput = document.getElementById("tradeStrategy");
+      const stratPreset = document.getElementById("tradeStrategyPreset");
+      if (stratInput) stratInput.value = trade.strategy || "";
+      if (stratPreset) stratPreset.value = "";
     }
   } else {
     document.getElementById("tradeModalTitle").innerHTML = `<i data-lucide="plus-circle" class="w-5 h-5 text-emerald-400"></i> Add New Trade`;
@@ -788,6 +807,10 @@ function openTradeModal(editId = null) {
     tradeP2Share.value = 100 - p1Pct;
     tradeStatusSelect.value = "OPEN";
     tradeEntryDate.value = new Date().toISOString().split('T')[0];
+    const stratInput = document.getElementById("tradeStrategy");
+    const stratPreset = document.getElementById("tradeStrategyPreset");
+    if (stratInput) stratInput.value = "";
+    if (stratPreset) stratPreset.value = "";
   }
 
   updateModalCalculation();
@@ -824,6 +847,16 @@ tradeP1Share.addEventListener("input", () => {
   tradeP2Share.value = 100 - val;
 });
 
+const tradeStrategyPresetElem = document.getElementById("tradeStrategyPreset");
+const tradeStrategyElem = document.getElementById("tradeStrategy");
+if (tradeStrategyPresetElem && tradeStrategyElem) {
+  tradeStrategyPresetElem.addEventListener("change", (e) => {
+    if (e.target.value) {
+      tradeStrategyElem.value = e.target.value;
+    }
+  });
+}
+
 tradeQty.addEventListener("input", updateModalCalculation);
 tradeEntryPrice.addEventListener("input", updateModalCalculation);
 tradeExitPrice.addEventListener("input", updateModalCalculation);
@@ -834,6 +867,7 @@ tradeForm.addEventListener("submit", (e) => {
   const id = tradeEditId.value || `trade_${Date.now()}`;
   const status = tradeStatusSelect.value;
   const exitVal = parseFloat(tradeExitPrice.value);
+  const strategyInput = document.getElementById("tradeStrategy");
 
   const newTrade = {
     id,
@@ -844,6 +878,7 @@ tradeForm.addEventListener("submit", (e) => {
     entryDate: tradeEntryDate.value,
     exitDate: tradeExitDate.value,
     status: status,
+    strategy: strategyInput ? strategyInput.value.trim() : "",
     p1SharePct: parseInt(tradeP1Share.value) || 0,
     p2SharePct: parseInt(tradeP2Share.value) || 0
   };
@@ -991,7 +1026,7 @@ function exportJSON() {
 
 function exportCSV() {
   const headers = [
-    "Stock", "Qty", "Entry Price", "Exit Price", "Invested (INR)",
+    "Stock", "Strategy", "Qty", "Entry Price", "Exit Price", "Invested (INR)",
     "Gross P&L (INR)", "P&L %", "Tax @20% (INR)", "Charges (INR)", "Net P&L (INR)",
     "P1 Share %", "P2 Share %", "P1 Share (INR)", "P2 Share (INR)",
     "Entry Date", "Exit Date", "Status"
@@ -1001,6 +1036,7 @@ function exportCSV() {
     const m = calculateTradeMetrics(t);
     return [
       t.stock,
+      t.strategy || "",
       t.qty,
       t.entryPrice,
       m.effectiveExitPrice || t.exitPrice,
@@ -1042,6 +1078,178 @@ function importJSON(file) {
       }
     } catch (err) {
       alert("Error reading file: " + err.message);
+    }
+  };
+  reader.readAsText(file);
+}
+
+// Zerodha Tradebook CSV Parser & FIFO Swing Matcher
+function importZerodhaCSV(file) {
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const text = e.target.result;
+      const lines = text.split(/\r?\n/).map(l => l.trim()).filter(l => l.length > 0);
+      if (lines.length < 2) {
+        alert("The selected CSV file appears to be empty.");
+        return;
+      }
+
+      const parseCSVLine = (line) => {
+        const result = [];
+        let cur = "";
+        let inQuotes = false;
+        for (let i = 0; i < line.length; i++) {
+          const c = line[i];
+          if (c === '"') {
+            inQuotes = !inQuotes;
+          } else if (c === ',' && !inQuotes) {
+            result.push(cur.trim().replace(/^"|"$/g, ''));
+            cur = "";
+          } else {
+            cur += c;
+          }
+        }
+        result.push(cur.trim().replace(/^"|"$/g, ''));
+        return result;
+      };
+
+      const headers = parseCSVLine(lines[0]).map(h => h.toLowerCase().replace(/[^a-z0-9_]/g, ''));
+      
+      const colSymbol = headers.findIndex(h => h === "symbol" || h === "stock" || h === "scrip");
+      const colDate = headers.findIndex(h => h === "tradedate" || h === "trade_date" || h === "date" || h === "orderexecutiontime");
+      const colType = headers.findIndex(h => h === "tradetype" || h === "trade_type" || h === "type" || h === "transactiontype");
+      const colQty = headers.findIndex(h => h === "quantity" || h === "qty");
+      const colPrice = headers.findIndex(h => h === "price" || h === "rate" || h === "tradeprice" || h === "averageprice");
+
+      if (colSymbol === -1 || colQty === -1 || colPrice === -1) {
+        alert("Could not detect Zerodha Tradebook columns. Please ensure CSV contains Symbol, Quantity, and Price.");
+        return;
+      }
+
+      const rawTrades = [];
+      for (let i = 1; i < lines.length; i++) {
+        const cols = parseCSVLine(lines[i]);
+        if (cols.length < 3) continue;
+
+        const symbol = (cols[colSymbol] || "").toUpperCase().trim();
+        if (!symbol) continue;
+
+        let rawDate = colDate !== -1 ? (cols[colDate] || "") : "";
+        let tradeDate = "";
+        if (rawDate) {
+          const dPart = rawDate.split(" ")[0];
+          if (dPart.includes("-")) {
+            const parts = dPart.split("-");
+            if (parts[0].length === 4) tradeDate = dPart;
+            else if (parts[2] && parts[2].length === 4) tradeDate = `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
+          } else if (dPart.includes("/")) {
+            const parts = dPart.split("/");
+            if (parts[2] && parts[2].length === 4) tradeDate = `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
+          }
+        }
+        if (!tradeDate) tradeDate = new Date().toISOString().split("T")[0];
+
+        const typeStr = colType !== -1 ? (cols[colType] || "buy").toLowerCase().trim() : "buy";
+        const isBuy = typeStr.includes("buy") || typeStr === "b";
+        const qty = Math.abs(parseFloat(cols[colQty])) || 0;
+        const price = Math.abs(parseFloat(cols[colPrice])) || 0;
+
+        if (qty > 0 && price > 0) {
+          rawTrades.push({ symbol, date: tradeDate, isBuy, qty, price });
+        }
+      }
+
+      if (rawTrades.length === 0) {
+        alert("No valid trade records found in this CSV.");
+        return;
+      }
+
+      rawTrades.sort((a, b) => a.date.localeCompare(b.date));
+
+      const buyQueues = {};
+      const newImportedTrades = [];
+
+      rawTrades.forEach(t => {
+        if (!buyQueues[t.symbol]) buyQueues[t.symbol] = [];
+
+        if (t.isBuy) {
+          buyQueues[t.symbol].push({ ...t, remQty: t.qty });
+        } else {
+          let sellRem = t.qty;
+          while (sellRem > 0 && buyQueues[t.symbol].length > 0) {
+            const earliestBuy = buyQueues[t.symbol][0];
+            const matchedQty = Math.min(sellRem, earliestBuy.remQty);
+
+            newImportedTrades.push({
+              id: `zerodha_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`,
+              stock: t.symbol,
+              qty: matchedQty,
+              entryPrice: earliestBuy.price,
+              exitPrice: t.price,
+              entryDate: earliestBuy.date,
+              exitDate: t.date,
+              status: "CLOSED",
+              p1SharePct: 100,
+              p2SharePct: 0,
+              strategy: "Zerodha Import"
+            });
+
+            earliestBuy.remQty -= matchedQty;
+            sellRem -= matchedQty;
+            if (earliestBuy.remQty <= 0.0001) {
+              buyQueues[t.symbol].shift();
+            }
+          }
+        }
+      });
+
+      Object.keys(buyQueues).forEach(symbol => {
+        buyQueues[symbol].forEach(openBuy => {
+          if (openBuy.remQty > 0.0001) {
+            newImportedTrades.push({
+              id: `zerodha_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`,
+              stock: symbol,
+              qty: openBuy.remQty,
+              entryPrice: openBuy.price,
+              exitPrice: 0,
+              entryDate: openBuy.date,
+              exitDate: "",
+              status: "OPEN",
+              p1SharePct: 100,
+              p2SharePct: 0,
+              strategy: "Zerodha Import"
+            });
+          }
+        });
+      });
+
+      if (newImportedTrades.length === 0) {
+        alert("Could not generate any swing trades from the CSV.");
+        return;
+      }
+
+      let addedCount = 0;
+      newImportedTrades.forEach(nt => {
+        const exists = appState.trades.some(existing => 
+          existing.stock === nt.stock && 
+          existing.entryDate === nt.entryDate && 
+          existing.qty === nt.qty && 
+          Math.abs(existing.entryPrice - nt.entryPrice) < 0.01 &&
+          existing.status === nt.status
+        );
+        if (!exists) {
+          appState.trades.push(nt);
+          addedCount++;
+        }
+      });
+
+      saveState();
+      renderAll();
+      alert(`🎉 Successfully imported ${addedCount} trades from Zerodha Tradebook! (${newImportedTrades.length - addedCount} duplicates skipped)`);
+    } catch (err) {
+      console.error(err);
+      alert("Error parsing Zerodha CSV: " + err.message);
     }
   };
   reader.readAsText(file);
@@ -1130,6 +1338,16 @@ document.getElementById("btnExportCSV").addEventListener("click", exportCSV);
 document.getElementById("importFileInput").addEventListener("change", (e) => {
   if (e.target.files.length > 0) importJSON(e.target.files[0]);
 });
+
+const importZerodhaInput = document.getElementById("importZerodhaInput");
+if (importZerodhaInput) {
+  importZerodhaInput.addEventListener("change", (e) => {
+    if (e.target.files.length > 0) {
+      importZerodhaCSV(e.target.files[0]);
+      e.target.value = "";
+    }
+  });
+}
 
 document.getElementById("btnResetData").addEventListener("click", () => {
   if (confirm("Reset all data back to original sample data?")) {

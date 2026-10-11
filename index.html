@@ -125,8 +125,13 @@
               <i data-lucide="file-spreadsheet" class="w-3.5 h-3.5 text-teal-500 dark:text-teal-400"></i> Export CSV (.csv)
             </button>
             <label class="w-full text-left px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 flex items-center gap-2 cursor-pointer">
-              <i data-lucide="upload" class="w-3.5 h-3.5 text-blue-500 dark:text-blue-400"></i> Import Backup
+              <i data-lucide="upload" class="w-3.5 h-3.5 text-blue-500 dark:text-blue-400"></i> Import Backup (.json)
               <input type="file" id="importFileInput" accept=".json" class="hidden" />
+            </label>
+            <div class="border-t border-slate-200 dark:border-slate-700 my-1"></div>
+            <label class="w-full text-left px-4 py-2 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center gap-2 cursor-pointer font-medium">
+              <i data-lucide="file-input" class="w-3.5 h-3.5 text-emerald-500 dark:text-emerald-400"></i> Import Zerodha Tradebook (.csv)
+              <input type="file" id="importZerodhaInput" accept=".csv" class="hidden" />
             </label>
             <div class="border-t border-slate-200 dark:border-slate-700 my-1"></div>
             <button id="btnResetData" class="w-full text-left px-4 py-2 hover:bg-red-50 dark:hover:bg-red-500/10 text-red-600 dark:text-red-400 flex items-center gap-2">
@@ -453,6 +458,23 @@
           <div>
             <label class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">Exit Date</label>
             <input type="date" id="tradeExitDate" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500" />
+          </div>
+        </div>
+
+        <!-- Strategy / Setup Tag -->
+        <div>
+          <label class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">Strategy / Setup Tag <span class="text-slate-400 text-[11px]">(Optional)</span></label>
+          <div class="grid grid-cols-2 gap-2">
+            <select id="tradeStrategyPreset" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500">
+              <option value="">Select Preset...</option>
+              <option value="Breakout">🚀 Breakout</option>
+              <option value="Pullback">🔄 Pullback</option>
+              <option value="EMA Bounce">📈 EMA Bounce</option>
+              <option value="Support Bounce">🛡️ Support Bounce</option>
+              <option value="Chart Pattern">📐 Chart Pattern</option>
+              <option value="Positional">🎯 Positional</option>
+            </select>
+            <input type="text" id="tradeStrategy" placeholder="Or custom setup name" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-emerald-500" />
           </div>
         </div>
 
