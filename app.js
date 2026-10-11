@@ -292,7 +292,8 @@ function renderAll() {
 
 function populateMonthDropdown() {
   const select = document.getElementById("monthFilterSelect");
-  if (!select) return;
+  const label = document.getElementById("monthDropdownLabel");
+  const menu = document.getElementById("monthDropdownMenu");
 
   const monthSet = new Set();
   appState.trades.forEach(t => {
@@ -303,15 +304,75 @@ function populateMonthDropdown() {
   const sortedMonths = Array.from(monthSet).sort().reverse();
   const currentVal = selectedMonth;
 
-  select.innerHTML = `<option value="ALL">All Months</option>`;
+  // Update button label
+  if (label) {
+    label.textContent = currentVal === "ALL" ? "All Months" : formatMonthName(currentVal);
+  }
 
-  sortedMonths.forEach(ym => {
-    const opt = document.createElement("option");
-    opt.value = ym;
-    opt.textContent = formatMonthName(ym);
-    if (ym === currentVal) opt.selected = true;
-    select.appendChild(opt);
-  });
+  // Update hidden select if present
+  if (select) {
+    select.innerHTML = `<option value="ALL">All Months</option>`;
+    sortedMonths.forEach(ym => {
+      const opt = document.createElement("option");
+      opt.value = ym;
+      opt.textContent = formatMonthName(ym);
+      if (ym === currentVal) opt.selected = true;
+      select.appendChild(opt);
+    });
+  }
+
+  // Populate custom menu
+  if (menu) {
+    const options = [
+      { value: "ALL", label: "All Months" },
+      ...sortedMonths.map(ym => ({ value: ym, label: formatMonthName(ym) }))
+    ];
+
+    menu.innerHTML = options.map(opt => {
+      const isSelected = opt.value === currentVal;
+      return `
+        <button type="button" data-value="${opt.value}" class="month-option-btn w-full text-left px-3 py-2 text-xs sm:text-sm rounded-lg flex items-center justify-between transition-colors ${
+          isSelected 
+            ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-semibold' 
+            : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/60'
+        }">
+          <span>${opt.label}</span>
+          ${isSelected ? '<i data-lucide="check" class="w-3.5 h-3.5 text-emerald-500 dark:text-emerald-400"></i>' : ''}
+        </button>
+      `;
+    }).join("");
+
+    menu.querySelectorAll(".month-option-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        selectedMonth = btn.getAttribute("data-value");
+        closeMonthDropdown();
+        renderAll();
+      });
+    });
+  }
+}
+
+function toggleMonthDropdown() {
+  const menu = document.getElementById("monthDropdownMenu");
+  const chevron = document.getElementById("monthDropdownChevron");
+  if (!menu) return;
+  const isHidden = menu.classList.contains("hidden");
+  if (isHidden) {
+    menu.classList.remove("hidden");
+    if (chevron) chevron.classList.add("rotate-180");
+  } else {
+    menu.classList.add("hidden");
+    if (chevron) chevron.classList.remove("rotate-180");
+  }
+}
+
+function closeMonthDropdown() {
+  const menu = document.getElementById("monthDropdownMenu");
+  const chevron = document.getElementById("monthDropdownChevron");
+  if (menu && !menu.classList.contains("hidden")) {
+    menu.classList.add("hidden");
+    if (chevron) chevron.classList.remove("rotate-180");
+  }
 }
 
 function renderKPIs(s) {
@@ -997,7 +1058,29 @@ document.getElementById("btnOpenCapitalModal").addEventListener("click", openCap
 document.getElementById("btnCloseCapitalModal").addEventListener("click", closeCapitalModal);
 document.getElementById("btnCancelCapitalModal").addEventListener("click", closeCapitalModal);
 
-// Month Filter Select
+// Month Filter Dropdown Event Listeners
+const monthDropdownBtn = document.getElementById("monthDropdownBtn");
+if (monthDropdownBtn) {
+  monthDropdownBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    toggleMonthDropdown();
+    lucide.createIcons();
+  });
+}
+
+document.addEventListener("click", (e) => {
+  const container = document.getElementById("monthDropdownContainer");
+  if (container && !container.contains(e.target)) {
+    closeMonthDropdown();
+  }
+});
+
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") {
+    closeMonthDropdown();
+  }
+});
+
 const monthFilterSelect = document.getElementById("monthFilterSelect");
 if (monthFilterSelect) {
   monthFilterSelect.addEventListener("change", (e) => {

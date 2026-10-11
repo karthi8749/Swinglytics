@@ -74,10 +74,18 @@
 
       <!-- Action Buttons, Month Filter & Theme Toggle -->
       <div class="flex items-center gap-2 sm:gap-3">
-        <!-- Monthly Filter Dropdown -->
-        <div class="relative flex items-center">
-          <i data-lucide="calendar" class="w-3.5 h-3.5 absolute left-2.5 text-emerald-500 dark:text-emerald-400 pointer-events-none"></i>
-          <select id="monthFilterSelect" class="bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700/80 border border-slate-200 dark:border-slate-700 rounded-lg pl-8 pr-3 py-2 text-xs sm:text-sm font-medium text-slate-700 dark:text-slate-200 focus:outline-none focus:border-emerald-500 cursor-pointer shadow-sm transition">
+        <!-- Monthly Filter Custom Dropdown -->
+        <div class="relative" id="monthDropdownContainer">
+          <button id="monthDropdownBtn" type="button" class="flex items-center gap-2 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700/80 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-xs sm:text-sm font-medium text-slate-700 dark:text-slate-200 focus:outline-none focus:border-emerald-500 cursor-pointer shadow-sm transition">
+            <i data-lucide="calendar" class="w-3.5 h-3.5 text-emerald-500 dark:text-emerald-400"></i>
+            <span id="monthDropdownLabel">All Months</span>
+            <i data-lucide="chevron-down" id="monthDropdownChevron" class="w-3.5 h-3.5 text-slate-400 transition-transform duration-200"></i>
+          </button>
+          
+          <div id="monthDropdownMenu" class="hidden absolute left-0 mt-1.5 w-44 sm:w-48 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700/80 rounded-xl shadow-xl p-1 z-50 backdrop-blur-md transition-all">
+            <!-- Dynamically populated options -->
+          </div>
+          <select id="monthFilterSelect" class="hidden">
             <option value="ALL">All Months</option>
           </select>
         </div>
