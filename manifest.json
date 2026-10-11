@@ -4,8 +4,8 @@
   "description": "Professional Swing Trading Journal, Live CMP & Partner Capital Analytics",
   "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#0b0f17",
-  "theme_color": "#0b0f17",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
   "orientation": "portrait-primary",
   "icons": [
     {
