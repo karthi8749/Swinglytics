@@ -8,7 +8,8 @@ const DEFAULT_STATE = {
   settings: {
     partner1: { name: "Karthi", initialCapital: 100000 },
     partner2: { name: "Person 2", initialCapital: 0 },
-    taxRate: 0.20 // 20% STCG
+    taxRate: 0.20, // 20% STCG
+    strategies: ["Breakout", "Pullback", "EMA Bounce", "Support Bounce", "Chart Pattern", "Positional"]
   },
   trades: [
     {
@@ -90,6 +91,10 @@ function loadState() {
     if (raw) {
       const parsed = JSON.parse(raw);
       if (parsed.trades && parsed.trades.length > 0) {
+        if (!parsed.settings) parsed.settings = DEFAULT_STATE.settings;
+        if (!parsed.settings.strategies || !Array.isArray(parsed.settings.strategies)) {
+          parsed.settings.strategies = ["Breakout", "Pullback", "EMA Bounce", "Support Bounce", "Chart Pattern", "Positional"];
+        }
         return parsed;
       }
     }
@@ -775,6 +780,92 @@ const tradeP1Share = document.getElementById("tradeP1Share");
 const tradeP2Share = document.getElementById("tradeP2Share");
 const modalEstPnL = document.getElementById("modalEstPnL");
 
+// =================== STRATEGY MANAGEMENT ===================
+
+function populateStrategyPresetDropdown(selectedVal = "") {
+  const select = document.getElementById("tradeStrategyPreset");
+  if (!select) return;
+
+  const list = (appState.settings && appState.settings.strategies) ? appState.settings.strategies : [];
+  select.innerHTML = `<option value="">Select Preset...</option>` + 
+    list.map(s => `<option value="${s}" ${s === selectedVal ? 'selected' : ''}>${s}</option>`).join("") +
+    `<option value="__MANAGE__">⚙️ Add / Delete Strategies...</option>`;
+}
+
+function renderStrategyManagerList() {
+  const container = document.getElementById("strategyListContainer");
+  const countElem = document.getElementById("strategyCount");
+  if (!container) return;
+
+  const list = (appState.settings && appState.settings.strategies) ? appState.settings.strategies : [];
+  if (countElem) countElem.textContent = list.length;
+
+  if (list.length === 0) {
+    container.innerHTML = `<div class="p-3 text-center text-xs text-slate-400">No strategies yet. Add your first setup above!</div>`;
+    return;
+  }
+
+  container.innerHTML = list.map((strat, idx) => `
+    <div class="flex items-center justify-between px-3 py-2 rounded-lg bg-slate-50 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700/60 transition group hover:border-slate-300 dark:hover:border-slate-600">
+      <span class="text-xs font-semibold text-slate-800 dark:text-slate-200">${strat}</span>
+      <button type="button" onclick="deleteStrategy(${idx})" class="p-1 rounded text-slate-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-500/10 transition" title="Delete ${strat}">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
+      </button>
+    </div>
+  `).join("");
+}
+
+function addNewStrategy() {
+  const input = document.getElementById("newStrategyInput");
+  if (!input) return;
+  const val = input.value.trim();
+  if (!val) return;
+
+  if (!appState.settings) appState.settings = {};
+  if (!appState.settings.strategies) appState.settings.strategies = [];
+  
+  if (appState.settings.strategies.some(s => s.toLowerCase() === val.toLowerCase())) {
+    alert("This strategy already exists!");
+    return;
+  }
+
+  appState.settings.strategies.push(val);
+  saveState();
+  input.value = "";
+  renderStrategyManagerList();
+  populateStrategyPresetDropdown(val);
+  const tradeStrat = document.getElementById("tradeStrategy");
+  if (tradeStrat) tradeStrat.value = val;
+}
+
+function deleteStrategy(index) {
+  if (!appState.settings || !appState.settings.strategies) return;
+  const removed = appState.settings.strategies[index];
+  if (confirm(`Delete strategy "${removed}"?`)) {
+    appState.settings.strategies.splice(index, 1);
+    saveState();
+    renderStrategyManagerList();
+    populateStrategyPresetDropdown();
+  }
+}
+
+function openStrategyModal() {
+  const modal = document.getElementById("strategyModal");
+  if (!modal) return;
+  renderStrategyManagerList();
+  modal.classList.remove("hidden");
+  const input = document.getElementById("newStrategyInput");
+  if (input) {
+    input.value = "";
+    setTimeout(() => input.focus(), 50);
+  }
+}
+
+function closeStrategyModal() {
+  const modal = document.getElementById("strategyModal");
+  if (modal) modal.classList.add("hidden");
+}
+
 function openTradeModal(editId = null) {
   tradeForm.reset();
   tradeEditId.value = "";
@@ -794,9 +885,8 @@ function openTradeModal(editId = null) {
       tradeP1Share.value = trade.p1SharePct !== undefined ? trade.p1SharePct : 100;
       tradeP2Share.value = 100 - Number(tradeP1Share.value);
       const stratInput = document.getElementById("tradeStrategy");
-      const stratPreset = document.getElementById("tradeStrategyPreset");
       if (stratInput) stratInput.value = trade.strategy || "";
-      if (stratPreset) stratPreset.value = "";
+      populateStrategyPresetDropdown(trade.strategy || "");
     }
   } else {
     document.getElementById("tradeModalTitle").innerHTML = `<i data-lucide="plus-circle" class="w-5 h-5 text-emerald-400"></i> Add New Trade`;
@@ -808,9 +898,8 @@ function openTradeModal(editId = null) {
     tradeStatusSelect.value = "OPEN";
     tradeEntryDate.value = new Date().toISOString().split('T')[0];
     const stratInput = document.getElementById("tradeStrategy");
-    const stratPreset = document.getElementById("tradeStrategyPreset");
     if (stratInput) stratInput.value = "";
-    if (stratPreset) stratPreset.value = "";
+    populateStrategyPresetDropdown("");
   }
 
   updateModalCalculation();
@@ -851,8 +940,34 @@ const tradeStrategyPresetElem = document.getElementById("tradeStrategyPreset");
 const tradeStrategyElem = document.getElementById("tradeStrategy");
 if (tradeStrategyPresetElem && tradeStrategyElem) {
   tradeStrategyPresetElem.addEventListener("change", (e) => {
-    if (e.target.value) {
+    if (e.target.value === "__MANAGE__") {
+      openStrategyModal();
+      tradeStrategyPresetElem.value = "";
+    } else if (e.target.value) {
       tradeStrategyElem.value = e.target.value;
+    }
+  });
+}
+
+// Strategy Modal button listeners
+const btnOpenStrat = document.getElementById("btnOpenStrategyModal");
+if (btnOpenStrat) btnOpenStrat.addEventListener("click", openStrategyModal);
+
+const btnCloseStrat = document.getElementById("btnCloseStrategyModal");
+if (btnCloseStrat) btnCloseStrat.addEventListener("click", closeStrategyModal);
+
+const btnDoneStrat = document.getElementById("btnDoneStrategyModal");
+if (btnDoneStrat) btnDoneStrat.addEventListener("click", closeStrategyModal);
+
+const btnAddStrat = document.getElementById("btnAddStrategy");
+if (btnAddStrat) btnAddStrat.addEventListener("click", addNewStrategy);
+
+const newStratInput = document.getElementById("newStrategyInput");
+if (newStratInput) {
+  newStratInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      addNewStrategy();
     }
   });
 }

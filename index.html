@@ -463,16 +463,15 @@
 
         <!-- Strategy / Setup Tag -->
         <div>
-          <label class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">Strategy / Setup Tag <span class="text-slate-400 text-[11px]">(Optional)</span></label>
+          <div class="flex items-center justify-between mb-1">
+            <label class="block text-xs font-medium text-slate-700 dark:text-slate-300">Strategy / Setup Tag <span class="text-slate-400 text-[11px]">(Optional)</span></label>
+            <button type="button" id="btnOpenStrategyModal" class="text-xs text-emerald-600 dark:text-emerald-400 hover:text-emerald-500 font-semibold flex items-center gap-1 transition">
+              <i data-lucide="settings" class="w-3 h-3"></i> Add / Delete Strategies
+            </button>
+          </div>
           <div class="grid grid-cols-2 gap-2">
             <select id="tradeStrategyPreset" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500">
               <option value="">Select Preset...</option>
-              <option value="Breakout">🚀 Breakout</option>
-              <option value="Pullback">🔄 Pullback</option>
-              <option value="EMA Bounce">📈 EMA Bounce</option>
-              <option value="Support Bounce">🛡️ Support Bounce</option>
-              <option value="Chart Pattern">📐 Chart Pattern</option>
-              <option value="Positional">🎯 Positional</option>
             </select>
             <input type="text" id="tradeStrategy" placeholder="Or custom setup name" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-emerald-500" />
           </div>
@@ -569,6 +568,47 @@
           </button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- Manage Strategies Modal -->
+  <div id="strategyModal" class="fixed inset-0 bg-black/60 dark:bg-black/75 backdrop-blur-sm z-[60] flex items-center justify-center p-4 hidden">
+    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl w-full max-w-sm shadow-2xl overflow-hidden transition-colors">
+      <div class="p-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+        <h3 class="font-bold text-slate-900 dark:text-white text-sm flex items-center gap-2">
+          <i data-lucide="tag" class="w-4 h-4 text-emerald-500"></i> Manage Strategies
+        </h3>
+        <button type="button" id="btnCloseStrategyModal" class="text-slate-400 hover:text-slate-600 dark:hover:text-white transition">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <div class="p-4 space-y-3">
+        <!-- Add New Strategy Input -->
+        <div class="flex gap-2">
+          <input type="text" id="newStrategyInput" placeholder="New strategy name (e.g. VCP)" class="flex-1 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-1.5 text-xs text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-emerald-500" />
+          <button type="button" id="btnAddStrategy" class="px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold transition flex items-center gap-1 shadow-sm">
+            <i data-lucide="plus" class="w-3.5 h-3.5"></i> Add
+          </button>
+        </div>
+
+        <!-- Strategy List -->
+        <div>
+          <div class="text-[11px] font-medium text-slate-500 dark:text-slate-400 mb-1.5 flex items-center justify-between">
+            <span>Your Strategies (<span id="strategyCount">0</span>)</span>
+            <span class="text-[10px] text-slate-400">Click 🗑️ to delete</span>
+          </div>
+          <div id="strategyListContainer" class="space-y-1 max-h-52 overflow-y-auto pr-1">
+            <!-- Rendered dynamically -->
+          </div>
+        </div>
+      </div>
+
+      <div class="p-3 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-100 dark:border-slate-800 flex justify-end">
+        <button type="button" id="btnDoneStrategyModal" class="px-4 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-200 text-xs font-semibold transition">
+          Done
+        </button>
+      </div>
     </div>
   </div>
 
