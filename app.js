@@ -1511,4 +1511,22 @@ window.addEventListener("DOMContentLoaded", () => {
   renderAll();
   const hasOpen = appState.trades.some(t => t.status === "OPEN");
   if (hasOpen) refreshAllOpenPrices();
+
+  // Register PWA Service Worker
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("./sw.js").then((reg) => {
+      console.log("Swinglytics PWA Service Worker Registered:", reg.scope);
+    }).catch((err) => {
+      console.log("Service Worker Registration notice:", err);
+    });
+  }
 });
+
+// Capture install prompt for mobile
+let deferredPrompt = null;
+window.addEventListener("beforeinstallprompt", (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  console.log("PWA install prompt ready");
+});
+
