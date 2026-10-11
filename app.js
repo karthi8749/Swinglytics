@@ -1502,6 +1502,10 @@ function applyTheme(theme) {
     if (sunIcon) sunIcon.classList.add("hidden");
     if (moonIcon) moonIcon.classList.remove("hidden");
   }
+  const themeColorMeta = document.querySelector('meta[name="theme-color"]');
+  if (themeColorMeta) {
+    themeColorMeta.setAttribute("content", theme === "dark" ? "#0b0f17" : "#ffffff");
+  }
   localStorage.setItem("swing_trade_theme", theme);
 }
 

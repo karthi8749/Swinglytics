@@ -1,5 +1,5 @@
 // Swinglytics Service Worker
-const CACHE_NAME = 'swinglytics-v1';
+const CACHE_NAME = 'swinglytics-v2';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
