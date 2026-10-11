@@ -1,11 +1,12 @@
 {
+  "id": "/Swinglytics/?v=3",
   "name": "Swinglytics - Swing Trading Dashboard",
   "short_name": "Swinglytics",
   "description": "Professional Swing Trading Journal, Live CMP & Partner Capital Analytics",
-  "start_url": "./index.html",
+  "start_url": "./index.html?v=3",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#ffffff",
+  "background_color": "#0b0f17",
+  "theme_color": "#0b0f17",
   "orientation": "portrait-primary",
   "icons": [
     {

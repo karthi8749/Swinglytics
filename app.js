@@ -1472,6 +1472,14 @@ document.getElementById("btnResetData").addEventListener("click", () => {
   }
 });
 
+const btnOpenCapitalMobile = document.getElementById("btnOpenCapitalMobile");
+if (btnOpenCapitalMobile) {
+  btnOpenCapitalMobile.addEventListener("click", () => {
+    document.getElementById("dataMenuDropdown")?.classList.add("hidden");
+    openCapitalModal();
+  });
+}
+
 // =================== THEME MANAGEMENT (LIGHT / DARK) ===================
 
 function initTheme() {

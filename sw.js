@@ -1,10 +1,11 @@
 // Swinglytics Service Worker
-const CACHE_NAME = 'swinglytics-v3';
+const CACHE_NAME = 'swinglytics-v4';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
   './app.js',
   './manifest.json',
+  './logo.png',
   './icon-192.png',
   './icon-512.png'
 ];
