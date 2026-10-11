@@ -318,17 +318,23 @@ function renderKPIs(s) {
   document.getElementById("kpiTotalCapital").textContent = formatINR(s.totalCurrentCapital);
   document.getElementById("kpiInvestedCapital").textContent = formatINR(s.totalInvested);
   
-  // Gross P&L Card
+  // Gross P&L Card (Gross minus Charges)
   const grossCard = document.getElementById("kpiGrossPnLCard");
+  const grossAfterCharges = s.totalGrossPnL - s.totalCharges;
   if (grossCard) {
-    grossCard.textContent = formatINR(s.totalGrossPnL);
-    grossCard.className = `text-lg sm:text-xl font-bold mono ${s.totalGrossPnL >= 0 ? 'text-emerald-400' : 'text-rose-400'}`;
+    grossCard.textContent = formatINR(grossAfterCharges);
+    grossCard.className = `text-lg sm:text-xl font-bold mono ${grossAfterCharges >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`;
+  }
+
+  const chargesElem = document.getElementById("kpiChargesPaid");
+  if (chargesElem) {
+    chargesElem.textContent = formatINR(s.totalCharges);
   }
 
   // Net P&L Card
   const netElem = document.getElementById("kpiNetPnL");
   netElem.textContent = formatINR(s.totalNetPnL);
-  netElem.className = `text-lg sm:text-xl font-bold mono ${s.totalNetPnL >= 0 ? 'text-emerald-400' : 'text-rose-400'}`;
+  netElem.className = `text-lg sm:text-xl font-bold mono ${s.totalNetPnL >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`;
 
   document.getElementById("kpiTaxPaid").textContent = formatINR(s.totalTax);
 
