@@ -1,9 +1,9 @@
 {
-  "id": "swinglytics-clean-v6",
+  "id": "swinglytics-candlestick-v8",
   "name": "Swinglytics - Swing Trading Dashboard",
   "short_name": "Swinglytics",
   "description": "Professional Swing Trading Journal, Live CMP & Partner Capital Analytics",
-  "start_url": "./index.html?pwa=v6",
+  "start_url": "./index.html?pwa=v8",
   "scope": "./",
   "display": "standalone",
   "background_color": "#0b0f17",
