@@ -39,7 +39,7 @@
     }
   </script>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Sora:wght@600&display=swap');
     html, body {
       overflow-x: hidden !important;
       width: 100% !important;
@@ -52,6 +52,10 @@
     }
     .mono {
       font-family: 'JetBrains Mono', monospace;
+    }
+    .font-brand {
+      font-family: 'Sora', sans-serif;
+      font-weight: 600;
     }
     /* Custom Scrollbar */
     ::-webkit-scrollbar {
@@ -74,11 +78,11 @@
 
   <!-- Top Navbar -->
   <header class="border-b border-slate-200 dark:border-slate-800 bg-white/90 dark:bg-[#0b0f17]/95 backdrop-blur sticky top-0 z-30 transition-colors w-full max-w-full">
-    <div class="w-full px-2.5 sm:px-6 lg:px-8 h-13 sm:h-16 flex items-center justify-between gap-1 sm:gap-2">
+    <div class="w-full px-2.5 sm:px-6 lg:px-8 h-16 sm:h-18 flex items-center justify-between gap-1 sm:gap-2">
       <!-- Logo + Brand -->
       <div class="flex items-center gap-2 sm:gap-3 shrink-0">
-        <img src="logo.png" alt="Swinglytics Logo" class="h-8 sm:h-10 w-auto object-contain shrink-0 drop-shadow" />
-        <h1 class="text-xs sm:text-lg font-extrabold tracking-tight text-slate-900 dark:text-white">
+        <img src="logo.png" alt="Swinglytics Logo" class="h-9 sm:h-11 w-auto object-contain shrink-0 drop-shadow" />
+        <h1 class="text-sm sm:text-lg tracking-tight text-slate-900 dark:text-white font-brand">
           Swinglytics
         </h1>
       </div>
