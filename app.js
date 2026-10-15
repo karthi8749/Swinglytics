@@ -1585,9 +1585,12 @@ function saveCloudConfig(cfg) {
   localStorage.setItem(STORAGE_KEY_CLOUD_CONFIG, JSON.stringify(cfg));
 }
 
+const cloudSyncMenuDotMobile = document.getElementById("cloudSyncMenuDotMobile");
+
 function updateCloudUIStatus(status, text) {
   if (status === "connected") {
     if (cloudSyncStatusDot) cloudSyncStatusDot.className = "w-2 h-2 rounded-full bg-emerald-500 animate-pulse";
+    if (cloudSyncMenuDotMobile) cloudSyncMenuDotMobile.className = "w-2 h-2 rounded-full bg-emerald-500 animate-pulse absolute top-1 right-1 md:hidden";
     if (cloudSyncMenuBadge) {
       cloudSyncMenuBadge.className = "text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-500 dark:text-emerald-400 font-mono font-semibold";
       cloudSyncMenuBadge.textContent = "Live";
@@ -1602,6 +1605,7 @@ function updateCloudUIStatus(status, text) {
     if (btnPushToCloudNow) btnPushToCloudNow.classList.remove("hidden");
   } else if (status === "connecting") {
     if (cloudSyncStatusDot) cloudSyncStatusDot.className = "w-2 h-2 rounded-full bg-amber-400";
+    if (cloudSyncMenuDotMobile) cloudSyncMenuDotMobile.className = "w-2 h-2 rounded-full bg-amber-400 absolute top-1 right-1 md:hidden";
     if (cloudSyncMenuBadge) {
       cloudSyncMenuBadge.className = "text-[10px] px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-500 font-mono";
       cloudSyncMenuBadge.textContent = "Connecting";
@@ -1615,6 +1619,7 @@ function updateCloudUIStatus(status, text) {
     if (cloudLiveSubtitle) cloudLiveSubtitle.textContent = text || "Establishing connection...";
   } else {
     if (cloudSyncStatusDot) cloudSyncStatusDot.className = "w-2 h-2 rounded-full bg-slate-400";
+    if (cloudSyncMenuDotMobile) cloudSyncMenuDotMobile.className = "w-2 h-2 rounded-full bg-slate-400 absolute top-1 right-1 md:hidden";
     if (cloudSyncMenuBadge) {
       cloudSyncMenuBadge.className = "text-[10px] px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-400 font-mono";
       cloudSyncMenuBadge.textContent = "Offline";
