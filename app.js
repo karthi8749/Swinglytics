@@ -104,9 +104,12 @@ function loadState() {
   return JSON.parse(JSON.stringify(DEFAULT_STATE));
 }
 
-function saveState() {
+function saveState(skipCloudPush = false) {
   localStorage.setItem("swing_trade_state_v1", JSON.stringify(appState));
   renderAll();
+  if (!skipCloudPush && typeof pushStateToCloud === "function") {
+    pushStateToCloud();
+  }
 }
 
 // =================== CALCULATIONS ===================
@@ -1540,5 +1543,261 @@ window.addEventListener("beforeinstallprompt", (e) => {
   e.preventDefault();
   deferredPrompt = e;
   console.log("PWA install prompt ready");
+});
+
+// =================== CROSS-DEVICE CLOUD SYNC MODULE (FIREBASE) ===================
+const STORAGE_KEY_CLOUD_CONFIG = "swinglytics_cloud_sync_config_v1";
+
+const btnOpenCloudSync = document.getElementById("btnOpenCloudSync");
+const btnCloudSyncMenuItem = document.getElementById("btnCloudSyncMenuItem");
+const cloudSyncModal = document.getElementById("cloudSyncModal");
+const btnCloseCloudSyncModal = document.getElementById("btnCloseCloudSyncModal");
+const btnCancelCloudSync = document.getElementById("btnCancelCloudSync");
+const btnSaveCloudSync = document.getElementById("btnSaveCloudSync");
+const btnDisconnectCloud = document.getElementById("btnDisconnectCloud");
+const btnPushToCloudNow = document.getElementById("btnPushToCloudNow");
+
+const cloudFirebaseDbUrl = document.getElementById("cloudFirebaseDbUrl");
+const cloudFirebaseToken = document.getElementById("cloudFirebaseToken");
+const cloudSyncStatusDot = document.getElementById("cloudSyncStatusDot");
+const cloudSyncMenuBadge = document.getElementById("cloudSyncMenuBadge");
+const cloudModalStatusBadge = document.getElementById("cloudModalStatusBadge");
+const cloudLiveDot = document.getElementById("cloudLiveDot");
+const cloudLiveTitle = document.getElementById("cloudLiveTitle");
+const cloudLiveSubtitle = document.getElementById("cloudLiveSubtitle");
+
+let cloudDbInstance = null;
+let cloudSyncRef = null;
+let isApplyingCloudUpdate = false;
+let lastSyncedTimestamp = 0;
+
+function loadCloudConfig() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY_CLOUD_CONFIG);
+    if (raw) return JSON.parse(raw);
+  } catch (e) {
+    console.warn("Failed to load cloud config:", e);
+  }
+  return { dbUrl: "", token: "" };
+}
+
+function saveCloudConfig(cfg) {
+  localStorage.setItem(STORAGE_KEY_CLOUD_CONFIG, JSON.stringify(cfg));
+}
+
+function updateCloudUIStatus(status, text) {
+  if (status === "connected") {
+    if (cloudSyncStatusDot) cloudSyncStatusDot.className = "w-2 h-2 rounded-full bg-emerald-500 animate-pulse";
+    if (cloudSyncMenuBadge) {
+      cloudSyncMenuBadge.className = "text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-500 dark:text-emerald-400 font-mono font-semibold";
+      cloudSyncMenuBadge.textContent = "Live";
+    }
+    if (cloudModalStatusBadge) {
+      cloudModalStatusBadge.className = "text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-500 dark:text-emerald-400 font-mono font-semibold";
+      cloudModalStatusBadge.textContent = "Live Cloud Connected";
+    }
+    if (cloudLiveDot) cloudLiveDot.className = "w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse";
+    if (cloudLiveTitle) cloudLiveTitle.textContent = "Real-Time Cloud Sync Active";
+    if (cloudLiveSubtitle) cloudLiveSubtitle.textContent = text || "Phone & Laptop sync automatically on any trade changes";
+    if (btnPushToCloudNow) btnPushToCloudNow.classList.remove("hidden");
+  } else if (status === "connecting") {
+    if (cloudSyncStatusDot) cloudSyncStatusDot.className = "w-2 h-2 rounded-full bg-amber-400";
+    if (cloudSyncMenuBadge) {
+      cloudSyncMenuBadge.className = "text-[10px] px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-500 font-mono";
+      cloudSyncMenuBadge.textContent = "Connecting";
+    }
+    if (cloudModalStatusBadge) {
+      cloudModalStatusBadge.className = "text-[10px] px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-500 font-mono";
+      cloudModalStatusBadge.textContent = "Connecting...";
+    }
+    if (cloudLiveDot) cloudLiveDot.className = "w-2.5 h-2.5 rounded-full bg-amber-400";
+    if (cloudLiveTitle) cloudLiveTitle.textContent = "Connecting to Firebase...";
+    if (cloudLiveSubtitle) cloudLiveSubtitle.textContent = text || "Establishing connection...";
+  } else {
+    if (cloudSyncStatusDot) cloudSyncStatusDot.className = "w-2 h-2 rounded-full bg-slate-400";
+    if (cloudSyncMenuBadge) {
+      cloudSyncMenuBadge.className = "text-[10px] px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-400 font-mono";
+      cloudSyncMenuBadge.textContent = "Offline";
+    }
+    if (cloudModalStatusBadge) {
+      cloudModalStatusBadge.className = "text-[10px] px-2 py-0.5 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-mono";
+      cloudModalStatusBadge.textContent = "Offline";
+    }
+    if (cloudLiveDot) cloudLiveDot.className = "w-2.5 h-2.5 rounded-full bg-slate-400";
+    if (cloudLiveTitle) cloudLiveTitle.textContent = "Device Offline / Local Only";
+    if (cloudLiveSubtitle) cloudLiveSubtitle.textContent = text || "Connect Firebase Database to auto-sync with your laptop";
+    if (btnPushToCloudNow) btnPushToCloudNow.classList.add("hidden");
+  }
+}
+
+function openCloudSyncModal() {
+  const cfg = loadCloudConfig();
+  if (cloudFirebaseDbUrl) cloudFirebaseDbUrl.value = cfg.dbUrl || "";
+  if (cloudFirebaseToken) cloudFirebaseToken.value = cfg.token || "";
+  if (cloudSyncModal) cloudSyncModal.classList.remove("hidden");
+  if (typeof lucide !== "undefined") lucide.createIcons();
+}
+
+function closeCloudSyncModal() {
+  if (cloudSyncModal) cloudSyncModal.classList.add("hidden");
+}
+
+function pushStateToCloud() {
+  if (!cloudSyncRef || isApplyingCloudUpdate) return;
+  try {
+    const payload = {
+      appState: appState,
+      updatedAt: Date.now(),
+      clientDeviceId: getOrCreateDeviceId()
+    };
+    lastSyncedTimestamp = payload.updatedAt;
+    cloudSyncRef.set(payload).then(() => {
+      console.log("Swinglytics data pushed to Firebase Cloud successfully");
+    }).catch(err => {
+      console.error("Cloud push failed:", err);
+    });
+  } catch (e) {
+    console.error("Failed to prepare state for cloud:", e);
+  }
+}
+
+function getOrCreateDeviceId() {
+  let id = localStorage.getItem("swinglytics_device_id");
+  if (!id) {
+    id = "dev_" + Math.random().toString(36).substring(2, 9) + "_" + Date.now().toString(36);
+    localStorage.setItem("swinglytics_device_id", id);
+  }
+  return id;
+}
+
+function initCloudSync() {
+  const cfg = loadCloudConfig();
+  if (!cfg.dbUrl) {
+    updateCloudUIStatus("offline");
+    return;
+  }
+
+  if (typeof firebase === "undefined") {
+    console.warn("Firebase SDK not loaded on this page");
+    updateCloudUIStatus("offline", "Firebase SDK not available");
+    return;
+  }
+
+  try {
+    updateCloudUIStatus("connecting");
+    let app = null;
+    const appName = "SwinglyticsSyncApp";
+    
+    // Check if Swinglytics app instance exists
+    const existing = firebase.apps.find(a => a.name === appName);
+    if (existing) {
+      app = existing;
+    } else {
+      app = firebase.initializeApp({
+        databaseURL: cfg.dbUrl
+      }, appName);
+    }
+
+    cloudDbInstance = app.database();
+    cloudSyncRef = cloudDbInstance.ref("swinglytics/shared_state");
+
+    // Listen for realtime changes from other device (Phone / Laptop)
+    cloudSyncRef.on("value", (snapshot) => {
+      const data = snapshot.val();
+      if (!data || !data.appState) {
+        // Initial setup: If database node is empty, push current local data to seed it
+        updateCloudUIStatus("connected", "Ready. Initializing cloud backup...");
+        pushStateToCloud();
+        return;
+      }
+
+      // Check if update came from a different save
+      if (data.updatedAt && data.updatedAt === lastSyncedTimestamp) {
+        // Echo of our own write
+        updateCloudUIStatus("connected");
+        return;
+      }
+
+      const incomingState = data.appState;
+      if (incomingState && Array.isArray(incomingState.trades)) {
+        isApplyingCloudUpdate = true;
+        appState = incomingState;
+        lastSyncedTimestamp = data.updatedAt || Date.now();
+        saveState(true); // Save locally without echoing back to cloud
+        isApplyingCloudUpdate = false;
+        updateCloudUIStatus("connected", `Synced with ${data.clientDeviceId ? 'other device' : 'cloud'} at ${new Date(lastSyncedTimestamp).toLocaleTimeString()}`);
+        console.log("Swinglytics updated from Firebase Cloud!");
+      }
+    }, (error) => {
+      console.error("Firebase Realtime listener error:", error);
+      updateCloudUIStatus("offline", "Sync error: " + error.message);
+    });
+
+    updateCloudUIStatus("connected");
+  } catch (err) {
+    console.error("Firebase init failed:", err);
+    updateCloudUIStatus("offline", "Connection error: " + err.message);
+  }
+}
+
+// Cloud Modal UI Event Listeners
+if (btnOpenCloudSync) btnOpenCloudSync.addEventListener("click", openCloudSyncModal);
+if (btnCloudSyncMenuItem) {
+  btnCloudSyncMenuItem.addEventListener("click", () => {
+    document.getElementById("dataMenuDropdown")?.classList.add("hidden");
+    openCloudSyncModal();
+  });
+}
+if (btnCloseCloudSyncModal) btnCloseCloudSyncModal.addEventListener("click", closeCloudSyncModal);
+if (btnCancelCloudSync) btnCancelCloudSync.addEventListener("click", closeCloudSyncModal);
+
+if (btnSaveCloudSync) {
+  btnSaveCloudSync.addEventListener("click", () => {
+    const dbUrl = (cloudFirebaseDbUrl?.value || "").trim();
+    const token = (cloudFirebaseToken?.value || "").trim();
+    if (!dbUrl) {
+      alert("Please enter a valid Firebase Realtime Database URL.\n(e.g. https://your-project-default-rtdb.firebaseio.com)");
+      return;
+    }
+    saveCloudConfig({ dbUrl, token });
+    initCloudSync();
+    pushStateToCloud();
+    closeCloudSyncModal();
+    alert("✅ Realtime Cloud Sync Connected!\n\nYour Phone and Laptop will now sync trades and portfolio automatically in real-time.");
+  });
+}
+
+if (btnDisconnectCloud) {
+  btnDisconnectCloud.addEventListener("click", () => {
+    if (confirm("Disconnect Cloud Sync? Your trades will stay saved safely on this device offline.")) {
+      if (cloudSyncRef) {
+        cloudSyncRef.off();
+        cloudSyncRef = null;
+      }
+      saveCloudConfig({ dbUrl: "", token: "" });
+      updateCloudUIStatus("offline");
+      closeCloudSyncModal();
+      alert("Cloud Sync disconnected. Swinglytics is now running in local offline mode.");
+    }
+  });
+}
+
+if (btnPushToCloudNow) {
+  btnPushToCloudNow.addEventListener("click", () => {
+    pushStateToCloud();
+    alert("✅ Synced! All latest data pushed to cloud.");
+  });
+}
+
+// Esc key closes cloud sync modal
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && cloudSyncModal && !cloudSyncModal.classList.contains("hidden")) {
+    closeCloudSyncModal();
+  }
+});
+
+// Boot Cloud Sync on load
+window.addEventListener("DOMContentLoaded", () => {
+  initCloudSync();
 });
 
