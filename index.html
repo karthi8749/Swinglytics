@@ -72,17 +72,171 @@
     }
     .dark ::-webkit-scrollbar-thumb {
       background: #374151;
+    /* App Opening Animated Splash Screen */
+    .splash-orbit-spin {
+      animation: splashSpin 9s linear infinite;
+    }
+    @keyframes splashSpin {
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Moving indicator moves from outer radius and spirals into center */
+    @keyframes splashMoveToCenter {
+      0% {
+        transform: rotate(-180deg) translateX(95px) rotate(180deg) scale(0.6);
+        opacity: 0;
+      }
+      20% {
+        opacity: 1;
+        transform: rotate(-90deg) translateX(88px) rotate(90deg) scale(1.15);
+      }
+      50% {
+        transform: rotate(45deg) translateX(65px) rotate(-45deg) scale(1.3);
+      }
+      75% {
+        transform: rotate(180deg) translateX(30px) rotate(-180deg) scale(1.1);
+      }
+      90% {
+        transform: rotate(260deg) translateX(8px) rotate(-260deg) scale(0.9);
+        opacity: 1;
+      }
+      100% {
+        transform: rotate(300deg) translateX(0px) rotate(-300deg) scale(0);
+        opacity: 0;
+      }
+    }
+
+    .splash-indicator-orb {
+      position: absolute;
+      animation: splashMoveToCenter 1.1s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+      will-change: transform, opacity;
+    }
+
+    .splash-indicator-tail {
+      position: absolute;
+      width: 26px;
+      height: 3px;
+      background: linear-gradient(to right, transparent, #10b981);
+      top: 50%;
+      right: 100%;
+      transform: translateY(-50%);
+      border-radius: 9999px;
+      filter: blur(0.5px);
+    }
+
+    /* Logo burst upon indicator impact in center */
+    @keyframes splashLogoImpact {
+      0% {
+        transform: scale(0.75);
+        opacity: 0.3;
+      }
+      65% {
+        transform: scale(0.85);
+        opacity: 0.7;
+      }
+      85% {
+        transform: scale(1.08);
+        filter: drop-shadow(0 0 24px rgba(16, 185, 129, 0.85));
+      }
+      100% {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+
+    .splash-center-logo {
+      animation: splashLogoImpact 1.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    /* Expanding ripple wave right after indicator reaches center */
+    @keyframes splashRippleExpand {
+      0%, 70% {
+        transform: scale(0.4);
+        opacity: 0;
+      }
+      75% {
+        transform: scale(0.6);
+        opacity: 0.9;
+      }
+      100% {
+        transform: scale(2);
+        opacity: 0;
+      }
+    }
+
+    .splash-ripple {
+      animation: splashRippleExpand 1.4s ease-out forwards;
+    }
+
+    /* Brand text fade in after convergence */
+    @keyframes splashTextRise {
+      0%, 65% {
+        opacity: 0;
+        transform: translateY(12px);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .splash-brand-text {
+      animation: splashTextRise 1.4s ease-out forwards;
     }
   </style>
 </head>
 <body class="bg-slate-50 dark:bg-[#0b0f17] text-slate-800 dark:text-slate-100 min-h-screen selection:bg-emerald-500 selection:text-black overflow-x-hidden">
 
+  <!-- App Opening Animated Splash Screen (Logo Indicator Moves to Center) -->
+  <div id="appSplashScreen" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-[#070b12] text-white transition-all duration-500 select-none cursor-pointer overflow-hidden">
+    <!-- Ambient Radial Glow -->
+    <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(16,185,129,0.18)_0%,transparent_70%)] pointer-events-none"></div>
+    
+    <!-- Central Animation Stage -->
+    <div class="relative w-48 h-48 sm:w-56 sm:h-56 flex items-center justify-center">
+      <!-- Expanding Ripple Wave -->
+      <div id="splashRipple" class="splash-ripple absolute w-32 h-32 rounded-full border-2 border-emerald-500/50"></div>
+      
+      <!-- Outer Orbit Track -->
+      <div class="absolute inset-4 rounded-full border border-dashed border-emerald-500/20 splash-orbit-spin"></div>
+      
+      <!-- Moving Indicator: Spirals from outer orbit into the center -->
+      <div class="splash-indicator-arm absolute inset-0 flex items-center justify-center">
+        <div class="splash-indicator-orb">
+          <div class="w-3.5 h-3.5 rounded-full bg-emerald-400 shadow-[0_0_16px_#10b981]"></div>
+          <!-- Tail / Glow trail -->
+          <div class="splash-indicator-tail"></div>
+        </div>
+      </div>
+
+      <!-- Core Logo in Center -->
+      <div class="splash-center-logo relative z-10 flex items-center justify-center">
+        <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-3xl bg-gradient-to-tr from-[#0f172a] via-[#131d31] to-[#0b1320] border border-emerald-500/40 p-3 shadow-2xl flex items-center justify-center">
+          <img src="logo.png" alt="Swinglytics" class="w-full h-full object-contain filter drop-shadow-[0_0_12px_rgba(16,185,129,0.5)]" />
+        </div>
+      </div>
+    </div>
+
+    <!-- Animated Brand Title & Tagline -->
+    <div class="splash-brand-text text-center mt-5 space-y-1 relative z-10">
+      <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-white font-brand">
+        Swinglytics
+      </h1>
+      <p class="text-xs text-slate-400 tracking-wider font-medium">Swing Trading & Momentum Intelligence</p>
+    </div>
+
+    <!-- Skip tip -->
+    <div class="absolute bottom-6 text-[10px] text-slate-500 tracking-wide">
+      Tap anywhere to skip
+    </div>
+  </div>
+
   <!-- Top Navbar -->
   <header class="border-b border-slate-200 dark:border-slate-800 bg-white/90 dark:bg-[#0b0f17]/95 backdrop-blur sticky top-0 z-30 transition-colors w-full max-w-full">
     <div class="w-full px-3 sm:px-6 lg:px-8 h-[72px] sm:h-[80px] flex items-center justify-between gap-2">
       <!-- Logo + Brand -->
-      <div class="flex items-center gap-2 sm:gap-3 shrink-0">
-        <img src="logo.png" alt="Swinglytics Logo" class="h-10 sm:h-12 w-auto object-contain shrink-0 drop-shadow" />
+      <div id="navBrandLogo" class="flex items-center gap-2 sm:gap-3 shrink-0 cursor-pointer group" title="Replay Opening Logo Animation">
+        <img src="logo.png" alt="Swinglytics Logo" class="h-10 sm:h-12 w-auto object-contain shrink-0 drop-shadow group-hover:scale-105 transition-transform" />
         <h1 class="text-base sm:text-xl tracking-tight text-slate-900 dark:text-white font-brand">
           Swinglytics
         </h1>

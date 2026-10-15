@@ -1542,3 +1542,51 @@ window.addEventListener("beforeinstallprompt", (e) => {
   console.log("PWA install prompt ready");
 });
 
+// --- App Opening Splash Logo Animation Controller ---
+const splashEl = document.getElementById("appSplashScreen");
+const navBrandLogo = document.getElementById("navBrandLogo");
+
+function dismissSplashScreen() {
+  if (!splashEl || splashEl.dataset.dismissed === "true") return;
+  splashEl.dataset.dismissed = "true";
+  splashEl.style.opacity = "0";
+  splashEl.style.transform = "scale(1.04)";
+  splashEl.style.pointerEvents = "none";
+  setTimeout(() => {
+    splashEl.style.display = "none";
+  }, 550);
+}
+
+function playSplashScreenAnimation() {
+  if (!splashEl) return;
+  splashEl.dataset.dismissed = "false";
+  splashEl.style.display = "flex";
+  splashEl.style.pointerEvents = "auto";
+  splashEl.style.opacity = "1";
+  splashEl.style.transform = "scale(1)";
+
+  const orb = splashEl.querySelector(".splash-indicator-orb");
+  const logo = splashEl.querySelector(".splash-center-logo");
+  const ripple = splashEl.querySelector(".splash-ripple");
+  const text = splashEl.querySelector(".splash-brand-text");
+
+  [orb, logo, ripple, text].forEach(el => {
+    if (el) {
+      el.style.animation = "none";
+      void el.offsetWidth;
+      el.style.animation = "";
+    }
+  });
+
+  setTimeout(dismissSplashScreen, 1550);
+}
+
+if (splashEl) {
+  splashEl.addEventListener("click", dismissSplashScreen);
+  setTimeout(dismissSplashScreen, 1550);
+}
+
+if (navBrandLogo) {
+  navBrandLogo.addEventListener("click", playSplashScreenAnimation);
+}
+
