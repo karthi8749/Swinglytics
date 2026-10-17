@@ -407,49 +407,49 @@
     </section>
 
     <!-- 📅 Interactive Trading Calendar & Daily P&L Heatmap -->
-    <section class="bg-white dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/80 rounded-2xl p-4 sm:p-5 shadow-sm dark:shadow-none transition-colors">
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+    <section class="bg-white dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/80 rounded-2xl p-3 sm:p-4 shadow-sm dark:shadow-none transition-colors max-w-4xl mx-auto w-full">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 mb-3">
         <div>
           <div class="flex items-center gap-2">
-            <h2 class="font-bold text-slate-900 dark:text-slate-100 text-sm sm:text-base flex items-center gap-2">
+            <h2 class="font-bold text-slate-900 dark:text-slate-100 text-xs sm:text-sm flex items-center gap-1.5">
               <i data-lucide="calendar" class="w-4 h-4 text-emerald-500"></i>
-              Daily P&L Heatmap Calendar
+              Daily P&L Calendar
             </h2>
-            <span id="calendarMonthLabel" class="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 font-mono">
+            <span id="calendarMonthLabel" class="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 font-mono">
               All Months
             </span>
           </div>
-          <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Click any active trading day to view closed trades & execution notes</p>
+          <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">Click any active trading day to view closed trades & notes</p>
         </div>
 
         <!-- Month Navigation & Monthly Calendar Stats -->
         <div class="flex items-center gap-2 flex-wrap sm:flex-nowrap">
-          <div class="flex items-center bg-slate-100 dark:bg-slate-900/80 px-2.5 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 text-xs gap-2.5">
+          <div class="flex items-center bg-slate-100 dark:bg-slate-900/80 px-2.5 py-1 rounded-xl border border-slate-200 dark:border-slate-700 text-xs gap-2.5">
             <div>
-              <span class="text-slate-400 text-[10px]">Win Days: </span>
+              <span class="text-slate-400 text-[10px]">Win: </span>
               <span id="calWinDays" class="font-bold text-emerald-500 font-mono">0</span>
             </div>
-            <div class="w-px h-3 bg-slate-300 dark:bg-slate-700"></div>
+            <div class="w-px h-2.5 bg-slate-300 dark:bg-slate-700"></div>
             <div>
-              <span class="text-slate-400 text-[10px]">Loss Days: </span>
+              <span class="text-slate-400 text-[10px]">Loss: </span>
               <span id="calLossDays" class="font-bold text-rose-500 font-mono">0</span>
             </div>
-            <div class="w-px h-3 bg-slate-300 dark:bg-slate-700"></div>
+            <div class="w-px h-2.5 bg-slate-300 dark:bg-slate-700"></div>
             <div>
-              <span class="text-slate-400 text-[10px]">Month Net: </span>
+              <span class="text-slate-400 text-[10px]">Net: </span>
               <span id="calMonthNet" class="font-bold text-slate-900 dark:text-white font-mono">₹0.00</span>
             </div>
           </div>
 
           <div class="flex items-center gap-1">
-            <button id="btnCalPrevMonth" class="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition" title="Previous Month">
-              <i data-lucide="chevron-left" class="w-4 h-4"></i>
+            <button id="btnCalPrevMonth" class="p-1 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition" title="Previous Month">
+              <i data-lucide="chevron-left" class="w-3.5 h-3.5"></i>
             </button>
-            <button id="btnCalToday" class="px-2 py-1 text-xs font-semibold rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition" title="Current Month">
+            <button id="btnCalToday" class="px-2 py-0.5 text-[11px] font-semibold rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition" title="Current Month">
               Current
             </button>
-            <button id="btnCalNextMonth" class="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition" title="Next Month">
-              <i data-lucide="chevron-right" class="w-4 h-4"></i>
+            <button id="btnCalNextMonth" class="p-1 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition" title="Next Month">
+              <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
             </button>
           </div>
         </div>
@@ -457,9 +457,9 @@
 
       <!-- Calendar Grid Table -->
       <div class="w-full overflow-x-auto">
-        <div class="min-w-[550px]">
+        <div class="min-w-[480px]">
           <!-- Weekday Headers -->
-          <div class="grid grid-cols-7 gap-1.5 mb-1.5 text-center text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
+          <div class="grid grid-cols-7 gap-1 sm:gap-1.5 mb-1 text-center text-[10px] font-bold text-slate-400 uppercase tracking-wider">
             <div>Sun</div>
             <div>Mon</div>
             <div>Tue</div>
@@ -469,7 +469,7 @@
             <div>Sat</div>
           </div>
           <!-- Days Grid Container -->
-          <div id="calendarDaysGrid" class="grid grid-cols-7 gap-1.5">
+          <div id="calendarDaysGrid" class="grid grid-cols-7 gap-1 sm:gap-1.5">
             <!-- Dynamically generated days -->
           </div>
         </div>
@@ -1042,6 +1042,6 @@
   </div>
 
   <!-- App JavaScript Logic -->
-  <script src="app.js?v=13"></script>
+  <script src="app.js?v=14"></script>
 </body>
 </html>

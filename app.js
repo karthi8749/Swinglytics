@@ -1105,7 +1105,7 @@ function renderTradingCalendar() {
   // 1. Pad blank cells before firstDayIndex
   for (let i = 0; i < firstDayIndex; i++) {
     const empty = document.createElement("div");
-    empty.className = "h-16 sm:h-20 rounded-xl bg-slate-50/40 dark:bg-slate-900/30 border border-transparent";
+    empty.className = "h-8 sm:h-10 md:h-11 rounded-lg bg-slate-50/20 dark:bg-slate-900/20 border border-transparent";
     grid.appendChild(empty);
   }
 
@@ -1126,32 +1126,30 @@ function renderTradingCalendar() {
     const hasTrades = dayTrades.length > 0;
     const isWinDay = hasTrades && dayNet >= 0;
 
-    let bgClass = "bg-slate-50 dark:bg-slate-800/40 border-slate-200/80 dark:border-slate-700/60 text-slate-700 dark:text-slate-300";
+    let bgClass = "bg-slate-50/60 dark:bg-slate-800/30 border-slate-200/60 dark:border-slate-800/80 text-slate-600 dark:text-slate-400";
     if (hasTrades) {
       if (isWinDay) {
-        bgClass = "bg-emerald-500/10 dark:bg-emerald-500/15 border-emerald-500/30 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20 cursor-pointer shadow-sm hover:scale-[1.02] active:scale-95";
+        bgClass = "bg-emerald-500/15 dark:bg-emerald-500/20 border-emerald-500/40 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/25 cursor-pointer shadow-sm hover:scale-[1.02] active:scale-95";
       } else {
-        bgClass = "bg-rose-500/10 dark:bg-rose-500/15 border-rose-500/30 text-rose-600 dark:text-rose-400 hover:bg-rose-500/20 cursor-pointer shadow-sm hover:scale-[1.02] active:scale-95";
+        bgClass = "bg-rose-500/15 dark:bg-rose-500/20 border-rose-500/40 text-rose-600 dark:text-rose-400 hover:bg-rose-500/25 cursor-pointer shadow-sm hover:scale-[1.02] active:scale-95";
       }
     }
 
     const cell = document.createElement("div");
-    cell.className = `h-16 sm:h-20 p-1.5 sm:p-2 rounded-xl border flex flex-col justify-between transition-all ${bgClass} ${isToday ? 'ring-2 ring-emerald-500/70' : ''}`;
+    cell.className = `h-8 sm:h-10 md:h-11 p-1 sm:p-1.5 rounded-lg border flex flex-col justify-between transition-all ${bgClass} ${isToday ? 'ring-1.5 ring-emerald-500' : ''}`;
     
     cell.innerHTML = `
-      <div class="flex items-center justify-between">
-        <span class="text-[11px] sm:text-xs font-bold ${isToday ? 'text-emerald-500 underline' : 'text-slate-500 dark:text-slate-400'}">${day}</span>
-        ${hasTrades ? `<span class="text-[9px] px-1 rounded bg-black/10 dark:bg-black/30 font-semibold font-mono">${dayTrades.length} txn</span>` : ''}
+      <div class="flex items-center justify-between leading-none">
+        <span class="text-[10px] sm:text-[11px] font-bold ${isToday ? 'text-emerald-500 underline' : (hasTrades ? 'text-slate-900 dark:text-white font-extrabold' : 'text-slate-400 dark:text-slate-500')}">${day}</span>
+        ${hasTrades ? `<span class="text-[8px] px-1 py-0.2 rounded bg-black/10 dark:bg-black/40 font-bold font-mono">${dayTrades.length}t</span>` : ''}
       </div>
       ${hasTrades ? `
-        <div class="mt-auto">
-          <div class="text-[10px] sm:text-xs font-bold mono truncate ${isWinDay ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}">
+        <div class="mt-auto leading-none text-right">
+          <div class="text-[9px] sm:text-[10px] font-bold mono truncate ${isWinDay ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}">
             ${dayNet >= 0 ? '+' : ''}${formatINR(dayNet, 0)}
           </div>
         </div>
-      ` : `
-        <div class="mt-auto text-[9px] text-slate-300 dark:text-slate-700">&bull;</div>
-      `}
+      ` : ''}
     `;
 
     if (hasTrades) {
