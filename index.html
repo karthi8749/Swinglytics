@@ -260,6 +260,57 @@
       </div>
     </section>
 
+    <!-- ⚡ Performance Edge & Streaks Bar -->
+    <section class="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3.5">
+      <!-- 1. Win & Loss Streaks -->
+      <div class="bg-white dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/80 rounded-2xl p-3.5 shadow-sm dark:shadow-none flex items-center gap-3 transition-colors">
+        <div class="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-500 flex items-center justify-center shrink-0">
+          <i data-lucide="flame" class="w-5 h-5"></i>
+        </div>
+        <div class="min-w-0 flex-1">
+          <div class="text-[11px] text-slate-500 dark:text-slate-400 font-medium truncate">Best Win Streak</div>
+          <div id="streakBestWin" class="text-sm sm:text-base font-bold mono text-slate-900 dark:text-white">0 Trades</div>
+          <div id="streakCurrent" class="text-[10px] text-slate-500 dark:text-slate-400 truncate">Current: 0W streak</div>
+        </div>
+      </div>
+
+      <!-- 2. Max Drawdown (MDD) -->
+      <div class="bg-white dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/80 rounded-2xl p-3.5 shadow-sm dark:shadow-none flex items-center gap-3 transition-colors">
+        <div class="w-10 h-10 rounded-xl bg-rose-500/10 text-rose-500 flex items-center justify-center shrink-0">
+          <i data-lucide="trending-down" class="w-5 h-5"></i>
+        </div>
+        <div class="min-w-0 flex-1">
+          <div class="text-[11px] text-slate-500 dark:text-slate-400 font-medium truncate">Max Drawdown (MDD)</div>
+          <div id="mddAmount" class="text-sm sm:text-base font-bold mono text-rose-600 dark:text-rose-400">₹0.00</div>
+          <div id="mddPercent" class="text-[10px] text-rose-500/80 font-mono">0.00% from peak</div>
+        </div>
+      </div>
+
+      <!-- 3. Avg Holding Time -->
+      <div class="bg-white dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/80 rounded-2xl p-3.5 shadow-sm dark:shadow-none flex items-center gap-3 transition-colors">
+        <div class="w-10 h-10 rounded-xl bg-indigo-500/10 text-indigo-500 flex items-center justify-center shrink-0">
+          <i data-lucide="clock" class="w-5 h-5"></i>
+        </div>
+        <div class="min-w-0 flex-1">
+          <div class="text-[11px] text-slate-500 dark:text-slate-400 font-medium truncate">Avg Holding Time</div>
+          <div id="holdingAvgWins" class="text-sm sm:text-base font-bold mono text-emerald-600 dark:text-emerald-400">0d <span class="text-xs font-normal text-slate-400">(Wins)</span></div>
+          <div id="holdingAvgLoss" class="text-[10px] text-slate-500 dark:text-slate-400 font-mono">Losses: 0d avg</div>
+        </div>
+      </div>
+
+      <!-- 4. Best & Worst Trade -->
+      <div class="bg-white dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/80 rounded-2xl p-3.5 shadow-sm dark:shadow-none flex items-center gap-3 transition-colors">
+        <div class="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center shrink-0">
+          <i data-lucide="award" class="w-5 h-5"></i>
+        </div>
+        <div class="min-w-0 flex-1">
+          <div class="text-[11px] text-slate-500 dark:text-slate-400 font-medium truncate">Best Trade</div>
+          <div id="bestTradeText" class="text-sm sm:text-base font-bold mono text-emerald-600 dark:text-emerald-400 truncate">-</div>
+          <div id="worstTradeText" class="text-[10px] text-rose-500/80 font-mono truncate">Worst: -</div>
+        </div>
+      </div>
+    </section>
+
     <!-- Partner Share Cards (Person 1 & Person 2) -->
     <section class="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
       <!-- Partner 1 Card -->
@@ -355,6 +406,76 @@
       </div>
     </section>
 
+    <!-- 📅 Interactive Trading Calendar & Daily P&L Heatmap -->
+    <section class="bg-white dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/80 rounded-2xl p-4 sm:p-5 shadow-sm dark:shadow-none transition-colors">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+        <div>
+          <div class="flex items-center gap-2">
+            <h2 class="font-bold text-slate-900 dark:text-slate-100 text-sm sm:text-base flex items-center gap-2">
+              <i data-lucide="calendar" class="w-4 h-4 text-emerald-500"></i>
+              Daily P&L Heatmap Calendar
+            </h2>
+            <span id="calendarMonthLabel" class="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 font-mono">
+              All Months
+            </span>
+          </div>
+          <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Click any active trading day to view closed trades & execution notes</p>
+        </div>
+
+        <!-- Month Navigation & Monthly Calendar Stats -->
+        <div class="flex items-center gap-2 flex-wrap sm:flex-nowrap">
+          <div class="flex items-center bg-slate-100 dark:bg-slate-900/80 px-2.5 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 text-xs gap-2.5">
+            <div>
+              <span class="text-slate-400 text-[10px]">Win Days: </span>
+              <span id="calWinDays" class="font-bold text-emerald-500 font-mono">0</span>
+            </div>
+            <div class="w-px h-3 bg-slate-300 dark:bg-slate-700"></div>
+            <div>
+              <span class="text-slate-400 text-[10px]">Loss Days: </span>
+              <span id="calLossDays" class="font-bold text-rose-500 font-mono">0</span>
+            </div>
+            <div class="w-px h-3 bg-slate-300 dark:bg-slate-700"></div>
+            <div>
+              <span class="text-slate-400 text-[10px]">Month Net: </span>
+              <span id="calMonthNet" class="font-bold text-slate-900 dark:text-white font-mono">₹0.00</span>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-1">
+            <button id="btnCalPrevMonth" class="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition" title="Previous Month">
+              <i data-lucide="chevron-left" class="w-4 h-4"></i>
+            </button>
+            <button id="btnCalToday" class="px-2 py-1 text-xs font-semibold rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition" title="Current Month">
+              Current
+            </button>
+            <button id="btnCalNextMonth" class="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition" title="Next Month">
+              <i data-lucide="chevron-right" class="w-4 h-4"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Calendar Grid Table -->
+      <div class="w-full overflow-x-auto">
+        <div class="min-w-[550px]">
+          <!-- Weekday Headers -->
+          <div class="grid grid-cols-7 gap-1.5 mb-1.5 text-center text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
+            <div>Sun</div>
+            <div>Mon</div>
+            <div>Tue</div>
+            <div>Wed</div>
+            <div>Thu</div>
+            <div>Fri</div>
+            <div>Sat</div>
+          </div>
+          <!-- Days Grid Container -->
+          <div id="calendarDaysGrid" class="grid grid-cols-7 gap-1.5">
+            <!-- Dynamically generated days -->
+          </div>
+        </div>
+      </div>
+    </section>
+
     <!-- Trade Log Section -->
     <section class="bg-white dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/80 rounded-2xl overflow-hidden shadow-sm dark:shadow-xl transition-colors">
       <!-- Table Header & Controls -->
@@ -370,6 +491,18 @@
             <button id="tabOpen" class="px-2 sm:px-2.5 py-1 text-[11px] sm:text-xs font-medium rounded-md text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white whitespace-nowrap transition">🟢 Open (<span id="openCountBadge">0</span>)</button>
             <button id="tabProfit" class="px-2 sm:px-2.5 py-1 text-[11px] sm:text-xs font-medium rounded-md text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white whitespace-nowrap transition">Wins</button>
             <button id="tabLoss" class="px-2 sm:px-2.5 py-1 text-[11px] sm:text-xs font-medium rounded-md text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white whitespace-nowrap transition">Losses</button>
+          </div>
+
+          <!-- View Mode Switcher: Cards vs Table -->
+          <div class="flex bg-slate-100 dark:bg-slate-900/80 p-0.5 rounded-lg border border-slate-200 dark:border-slate-700 items-center">
+            <button id="btnViewCards" class="px-2 sm:px-2.5 py-1 text-[11px] sm:text-xs font-semibold rounded-md transition flex items-center gap-1 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white" title="Card View (Modern & Mobile-Optimized)">
+              <i data-lucide="layout-grid" class="w-3.5 h-3.5"></i>
+              <span class="hidden sm:inline">Cards</span>
+            </button>
+            <button id="btnViewTable" class="px-2 sm:px-2.5 py-1 text-[11px] sm:text-xs font-semibold rounded-md transition flex items-center gap-1 bg-emerald-500 text-slate-950" title="Table View (Full Columns)">
+              <i data-lucide="table" class="w-3.5 h-3.5"></i>
+              <span class="hidden sm:inline">Table</span>
+            </button>
           </div>
         </div>
 
@@ -394,7 +527,7 @@
       </div>
 
       <!-- Responsive Table Container -->
-      <div class="overflow-x-auto">
+      <div id="tableContainer" class="overflow-x-auto">
         <table class="w-full text-left text-xs min-w-[950px]">
           <thead class="bg-slate-100 dark:bg-slate-900/90 text-slate-600 dark:text-slate-400 border-b border-slate-200 dark:border-slate-700/80 font-semibold uppercase tracking-wider">
             <tr>
@@ -436,6 +569,11 @@
           </tfoot>
         </table>
       </div>
+
+      <!-- Mobile-First Responsive Trade Cards Container -->
+      <div id="tradeCardsContainer" class="p-3 sm:p-5 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 hidden">
+        <!-- Rendered dynamically -->
+      </div>
     </section>
 
   </main>
@@ -473,6 +611,46 @@
             <label class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">Entry Price (₹) *</label>
             <input type="number" id="tradeEntryPrice" required step="0.01" min="0.01" placeholder="e.g. 250.50" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-emerald-500 mono" />
           </div>
+        </div>
+
+        <!-- ⚖️ Risk & Target Planning (Stop-Loss, Target, R:R, Position Sizer) -->
+        <div class="p-3 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200 dark:border-slate-700/80 space-y-2.5">
+          <div class="flex items-center justify-between text-xs">
+            <span class="font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+              <i data-lucide="shield-alert" class="w-3.5 h-3.5 text-amber-500"></i> Risk & Target Setup
+            </span>
+            <span id="modalRRBadge" class="text-[10px] px-2 py-0.5 rounded-full font-bold bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 font-mono">
+              R:R --
+            </span>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-[11px] font-medium text-slate-600 dark:text-slate-400 mb-1">Stop-Loss (SL ₹)</label>
+              <input type="number" id="tradeStopLoss" step="0.01" min="0" placeholder="e.g. 235.00" class="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-1.5 text-xs text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-emerald-500 mono" />
+            </div>
+            <div>
+              <label class="block text-[11px] font-medium text-slate-600 dark:text-slate-400 mb-1">Target Price (₹)</label>
+              <input type="number" id="tradeTarget" step="0.01" min="0" placeholder="e.g. 290.00" class="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-1.5 text-xs text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-emerald-500 mono" />
+            </div>
+          </div>
+
+          <!-- Position Sizing Helper Button & Dropdown -->
+          <div class="pt-0.5 flex items-center justify-between gap-2 text-[11px]">
+            <span class="text-slate-500 dark:text-slate-400 font-medium">Position Sizer:</span>
+            <div class="flex items-center gap-1">
+              <button type="button" id="btnSizeRisk1" class="px-2 py-0.5 rounded bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 font-semibold transition" title="Size for 1% Capital Risk">
+                1% Risk
+              </button>
+              <button type="button" id="btnSizeRisk2" class="px-2 py-0.5 rounded bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 font-semibold transition" title="Size for 2% Capital Risk">
+                2% Risk
+              </button>
+              <button type="button" id="btnSizeRiskCustom" class="px-2 py-0.5 rounded bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-300 font-semibold transition">
+                Custom ₹
+              </button>
+            </div>
+          </div>
+          <div id="sizerFeedback" class="hidden text-[10px] text-emerald-600 dark:text-emerald-400 font-mono font-medium"></div>
         </div>
 
         <!-- Status & Exit Price -->
@@ -517,6 +695,32 @@
               <option value="">Select Preset...</option>
             </select>
             <input type="text" id="tradeStrategy" placeholder="Or custom setup name" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-emerald-500" />
+          </div>
+        </div>
+
+        <!-- Trading Psychology & Mistake Tag -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
+              Psychology / Discipline <span class="text-slate-400 text-[11px]">(Optional)</span>
+            </label>
+            <select id="tradeMistakeTag" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500">
+              <option value="">None / Standard</option>
+              <option value="🎯 Followed Rules">🎯 Followed Rules & Plan</option>
+              <option value="⚡ Perfect Execution">⚡ Perfect Setup & Exit</option>
+              <option value="⚠️ FOMO Entry">⚠️ FOMO Entry (Chased)</option>
+              <option value="⚠️ Early Exit">⚠️ Early Exit (Fear)</option>
+              <option value="⚠️ Moved Stop Loss">⚠️ Moved Stop Loss (Hopium)</option>
+              <option value="⚠️ Revenge Trade">⚠️ Revenge Trade</option>
+              <option value="⚠️ Overleveraged">⚠️ Overleveraged (Too big)</option>
+              <option value="⚠️ Late Exit">⚠️ Greed / Late Exit</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
+              TradingView / Chart Link <span class="text-slate-400 text-[11px]">(Optional)</span>
+            </label>
+            <input type="url" id="tradeChartUrl" placeholder="https://www.tradingview.com/x/..." class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-emerald-500 font-mono" />
           </div>
         </div>
 
@@ -744,7 +948,100 @@
     </div>
   </div>
 
+  <!-- Quick Close / Square Off Modal -->
+  <div id="quickCloseModal" class="fixed inset-0 bg-black/60 dark:bg-black/75 backdrop-blur-sm z-[65] flex items-center justify-center p-3 sm:p-4 hidden">
+    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl w-full max-w-md shadow-2xl overflow-hidden flex flex-col transition-colors">
+      <div class="p-4 sm:p-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between shrink-0">
+        <h3 class="font-bold text-slate-900 dark:text-white text-base flex items-center gap-2">
+          <i data-lucide="check-circle-2" class="w-5 h-5 text-emerald-500"></i> Square Off Position
+        </h3>
+        <button type="button" id="btnCloseQuickCloseModal" class="text-slate-400 hover:text-slate-600 dark:hover:text-white transition">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="p-4 sm:p-5 space-y-4">
+        <!-- Stock Details Header -->
+        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/80 flex items-center justify-between">
+          <div>
+            <div id="qcStockSymbol" class="text-base font-bold text-slate-900 dark:text-white tracking-wide">STOCK</div>
+            <div id="qcInvestedDetails" class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">100 shares @ ₹0.00 (₹0.00)</div>
+          </div>
+          <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/10 text-amber-500 border border-amber-500/30">
+            Open Position
+          </span>
+        </div>
+
+        <input type="hidden" id="qcTradeId" value="" />
+
+        <!-- Exit Price & Date -->
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">Exit / Sold Price (₹) *</label>
+            <input type="number" id="qcExitPrice" step="0.01" min="0.01" required class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-900 dark:text-white mono focus:outline-none focus:border-emerald-500" />
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">Exit Date *</label>
+            <input type="date" id="qcExitDate" required class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500" />
+          </div>
+        </div>
+
+        <!-- Live Estimate Breakdown -->
+        <div class="p-3.5 rounded-xl bg-emerald-500/5 border border-emerald-500/20 space-y-1.5 text-xs">
+          <div class="flex items-center justify-between">
+            <span class="text-slate-500 dark:text-slate-400">Estimated Gross P&L:</span>
+            <span id="qcGrossPnL" class="font-bold mono text-emerald-600 dark:text-emerald-400">₹0.00 (+0.00%)</span>
+          </div>
+          <div class="flex items-center justify-between text-[11px]">
+            <span class="text-slate-500 dark:text-slate-400">Taxes & Zerodha Charges:</span>
+            <span id="qcChargesTax" class="font-mono text-amber-600 dark:text-amber-400">₹0.00</span>
+          </div>
+          <div class="border-t border-emerald-500/20 pt-1.5 flex items-center justify-between font-bold">
+            <span class="text-slate-800 dark:text-slate-200">Net Realized P&L:</span>
+            <span id="qcNetPnL" class="font-bold mono text-emerald-600 dark:text-emerald-400">₹0.00</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="p-3 sm:p-4 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-100 dark:border-slate-800 flex items-center justify-end gap-2">
+        <button type="button" id="btnCancelQuickClose" class="px-4 py-2 rounded-lg bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 text-xs font-semibold transition">
+          Cancel
+        </button>
+        <button type="button" id="btnConfirmQuickClose" class="px-5 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold transition flex items-center gap-1.5 shadow-md shadow-emerald-500/20 active:scale-95">
+          <i data-lucide="check" class="w-4 h-4"></i> Confirm Square Off
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Day Trades Popup Modal (for Trading Calendar) -->
+  <div id="dayTradesModal" class="fixed inset-0 bg-black/60 dark:bg-black/75 backdrop-blur-sm z-[65] flex items-center justify-center p-3 sm:p-4 hidden">
+    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl w-full max-w-lg shadow-2xl overflow-hidden flex flex-col max-h-[85vh] transition-colors">
+      <div class="p-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between shrink-0">
+        <div>
+          <h3 id="dayTradesModalTitle" class="font-bold text-slate-900 dark:text-white text-sm sm:text-base flex items-center gap-2">
+            <i data-lucide="calendar" class="w-4 h-4 text-emerald-500"></i> Day Trades Summary
+          </h3>
+          <p id="dayTradesModalSubtitle" class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Closed Trades on this date</p>
+        </div>
+        <button type="button" id="btnCloseDayTradesModal" class="text-slate-400 hover:text-slate-600 dark:hover:text-white transition">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div id="dayTradesListContainer" class="p-4 space-y-2.5 overflow-y-auto">
+        <!-- Rendered dynamically -->
+      </div>
+
+      <div class="p-3 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-100 dark:border-slate-800 flex justify-end">
+        <button type="button" id="btnDoneDayTradesModal" class="px-4 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-200 text-xs font-semibold transition">
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- App JavaScript Logic -->
-  <script src="app.js"></script>
+  <script src="app.js?v=13"></script>
 </body>
 </html>
