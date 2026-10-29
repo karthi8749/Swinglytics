@@ -1946,21 +1946,35 @@ function importZerodhaCSV(file) {
         return result;
       };
 
-      const headers = parseCSVLine(lines[0]).map(h => h.toLowerCase().replace(/[^a-z0-9_]/g, ''));
-      
-      const colSymbol = headers.findIndex(h => h === "symbol" || h === "stock" || h === "scrip");
-      const colDate = headers.findIndex(h => h === "tradedate" || h === "trade_date" || h === "date" || h === "orderexecutiontime");
-      const colType = headers.findIndex(h => h === "tradetype" || h === "trade_type" || h === "type" || h === "transactiontype");
-      const colQty = headers.findIndex(h => h === "quantity" || h === "qty");
-      const colPrice = headers.findIndex(h => h === "price" || h === "rate" || h === "tradeprice" || h === "averageprice");
+      // Auto-scan first 25 rows to find header row (supports raw Zerodha exports & custom CSVs)
+      let headerLineIdx = 0;
+      let headers = [];
+      let colSymbol = -1, colQty = -1, colPrice = -1, colDate = -1, colType = -1;
+
+      for (let r = 0; r < Math.min(25, lines.length); r++) {
+        const testHeaders = parseCSVLine(lines[r]).map(h => h.toLowerCase().replace(/[^a-z0-9_]/g, ''));
+        const s = testHeaders.findIndex(h => h === 'symbol' || h === 'stock' || h === 'scrip');
+        const q = testHeaders.findIndex(h => h === 'quantity' || h === 'qty' || h.includes('qty') || h.includes('quantity'));
+        const p = testHeaders.findIndex(h => h === 'price' || h === 'rate' || h === 'tradeprice' || h === 'averageprice' || h.includes('price') || h.includes('rate'));
+        if (s !== -1 && q !== -1 && p !== -1) {
+          headerLineIdx = r;
+          headers = testHeaders;
+          colSymbol = s;
+          colQty = q;
+          colPrice = p;
+          colDate = testHeaders.findIndex(h => h === 'tradedate' || h === 'trade_date' || h === 'date' || h === 'orderexecutiontime' || h.includes('date'));
+          colType = testHeaders.findIndex(h => h === 'tradetype' || h === 'trade_type' || h === 'type' || h === 'transactiontype');
+          break;
+        }
+      }
 
       if (colSymbol === -1 || colQty === -1 || colPrice === -1) {
-        alert("Could not detect Zerodha Tradebook columns. Please ensure CSV contains Symbol, Quantity, and Price.");
+        alert('Could not detect Zerodha Tradebook columns. Please ensure CSV contains Symbol, Quantity, and Price.');
         return;
       }
 
       const rawTrades = [];
-      for (let i = 1; i < lines.length; i++) {
+      for (let i = headerLineIdx + 1; i < lines.length; i++) {
         const cols = parseCSVLine(lines[i]);
         if (cols.length < 3) continue;
 
